@@ -17,7 +17,7 @@
 - Controis reais: pausa, avance, volume, silencio, pantalla completa, parada e posición gardada.
 - Captura real da benvida; mínimo medido de 3.059 ms.
 - O verificador empaquetado comproba o mínimo de 3.000 ms, arranque, reprodución dun vídeo de proba, ciclo do navegador, integridade SQLite e preferencias tras reiniciar.
-- Linux x86_64: construído e verificado nun runner Ubuntu 24.04 con Xvfb. Windows x86_64: verificado localmente; consulta tamén o workflow da versión.
+- Linux x86_64: construído e verificado nun runner Ubuntu 24.04 con Xvfb. Windows x86_64: instalador construído e instalado nun directorio de proba, con arranque e reprodución verificados en Windows 11 Home (64 bits). Ambas as plataformas completaron correctamente o [workflow 38081730768](https://github.com/EidoAut/Louri-aFilms/actions/runs/38081730768).
 
 ## Descargas
 
