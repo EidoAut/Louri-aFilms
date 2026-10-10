@@ -67,7 +67,7 @@ python -m pip install -e ".[dev]"
 python main.py
 ```
 
-En Linux, instala as bibliotecas de Qt indicadas no [workflow](.github/workflows/build.yml). A reprodución require un escritorio gráfico e as bibliotecas multimedia do paquete. As descargas e os servizos externos precisan conexión á Internet.
+En Linux tamén se precisa `libpulse0` para Qt Multimedia. Instala as bibliotecas de Qt indicadas no [workflow](.github/workflows/build.yml). A reprodución require un escritorio gráfico e as bibliotecas multimedia do paquete. As descargas e os servizos externos precisan conexión á Internet.
 
 ## Datos e migración
 
