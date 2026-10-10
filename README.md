@@ -2,6 +2,16 @@
 
 Aplicación de escritorio para descubrir cinema, organizar unha colección local e reproducir fontes públicas compatibles. Emprega Python, PySide6/QML, SQLite e Qt Multimedia/WebEngine. Non precisa unha conta propia da aplicación.
 
+**Descargas · v0.4.0 (versión previa)**
+
+| Windows · Intel/AMD de 64 bits | Linux · x86_64 | Código fonte |
+| --- | --- | --- |
+| [Descargar instalador .exe](https://github.com/EidoAut/Louri-aFilms/releases/download/v0.4.0/lourihna-films-0.4.0-windows-x86_64-setup.exe) | [Descargar paquete .tar.gz](https://github.com/EidoAut/Louri-aFilms/releases/download/v0.4.0/lourihna-films-0.4.0-linux-x86_64.tar.gz) | [Descargar fontes .zip](https://github.com/EidoAut/Louri-aFilms/releases/download/v0.4.0/lourihna-films-0.4.0-source.zip) |
+
+[Notas da versión](https://github.com/EidoAut/Louri-aFilms/releases/tag/v0.4.0) · [Sumas SHA-256](https://github.com/EidoAut/Louri-aFilms/releases/download/v0.4.0/SHA256SUMS.txt) · [Requisitos e instalación](#descargas-e-requisitos)
+
+O repositorio é privado: cómpre iniciar sesión cunha conta que teña acceso para descargar.
+
 ## Funcións
 
 - Busca de vídeos públicos en OK.ru e fontes alternativas de Internet Archive. A dispoñibilidade depende de cada provedor.
