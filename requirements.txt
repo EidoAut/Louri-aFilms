@@ -1,0 +1,7 @@
+PySide6>=6.8,<6.13
+httpx>=0.28,<1
+pydantic>=2.10,<3
+SQLAlchemy>=2.0,<3
+python-dotenv>=1,<2
+ctranslate2>=4.6,<5
+sentencepiece>=0.2,<1

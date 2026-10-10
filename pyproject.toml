@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "teleputin"
+version = "0.3.4"
+description = "Public cinema discovery with Internet Archive, OK.ru and a local library"
+requires-python = ">=3.12"
+dependencies = ["PySide6>=6.8,<6.13", "httpx>=0.28,<1", "pydantic>=2.10,<3", "SQLAlchemy>=2.0,<3", "python-dotenv>=1,<2", "ctranslate2>=4.6,<5", "sentencepiece>=0.2,<1"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-asyncio>=0.25", "pyinstaller>=6", "Pillow>=11"]
+
+[tool.setuptools.packages.find]
+include = ["teleputin*"]
+
+[tool.setuptools.package-data]
+teleputin = ["ui/*.qml", "ui/qmldir", "ui/components/*.qml", "ui/components/*.js", "ui/pages/*.qml", "assets/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"

@@ -1,0 +1,13 @@
+# Integrated playback — 0.3.1
+
+The former optional “Play with buffer” flow has been replaced with automatic native playback. `application_controller.py` requests public source variants asynchronously; `BufferedPlayer.qml` uses Qt Multimedia with its FFmpeg backend. It streams progressively without a permanent movie download. Startup and stall timers are separate and bounded. At most three declared formats are tried, followed by one official embedded player attempt; manual Retry starts a fresh session.
+
+`public_media.py` reads metadata already published in a permitted public OK.ru page. It requires the matching video identifier, supported provider, no DRM declaration and validated HTTPS OK.ru CDN URLs. It does not authenticate, solve challenges or access private APIs. `archive.py` reads the official item metadata API and accepts only declared non-private MP4/WebM/Ogv files from unrestricted items. It rejects restricted/no-download items and path traversal. The metadata API is documented at https://archive.org/developers/md-read.html . Neither route guarantees rights or availability.
+
+The native player restores seekable positions, stores real progress and detects completion. Volume/mute persist separately. Exiting stops playback; pending source work is cancelled and late responses are rejected by generation/session. Signed playback URLs remain in memory. Expired sources can be resolved again by Retry, using the saved position.
+
+Web fallback stays inside Qt WebEngine, using official embeds. Popup windows, downloads, permission prompts and foreign main-frame navigation are denied. This is not a guarantee of ad-free playback: provider-owned advertising and controls may remain. Access restrictions and DRM are never bypassed. No global H264/AAC preflight blocks the native engine. WebEngine codec support differs from the native FFmpeg engine.
+
+For accessible HTML video elements, fallback startup/stall checks inspect actual time progression; cross-origin nested players may not expose that state and can time out. The web player does not implement progress resume or TelePutin's native shortcuts/volume control contract. If both routes fail, a visible Retry/Back state replaces the indefinite black screen. Original page remains an optional secondary action, not the recovery implementation.
+
+The reported Archive item `HisNewJobCharlesChaplin-1915` currently contains metadata, a torrent and a thumbnail but no playable video file. Codec installation cannot restore a missing source. Other Archive items, including `Horror_Express`, decoded video and audio in the audit.

@@ -1,0 +1,362 @@
+EIDO Automation — Python Programming Style Guide
+Version: 1.0
+Date: 2026-10-10
+Applies to: Python application, service, library and automation code.
+Source philosophy: EIDO SCL/TIA Programming Style Guide v1.1.
+
+1. Purpose and interpretation
+
+Make code easy to read in the editor, compact, explicitly structured and
+predictable to maintain. Comments explain intent and exceptions; names explain
+meaning. Each component has one primary responsibility. Separate correctness
+from style and document justified exceptions.
+
+This is a Python adaptation, not a literal translation of PLC syntax.
+The original SCL guide remains unchanged. Python-specific rules below take
+precedence for Python sources. Do not impose PLC scan semantics on event-driven
+applications. Existing public contracts and framework-required names prevail.
+
+2. General formatting
+
+Use UTF-8, LF line endings, four spaces per indentation level and no tabs.
+Use one statement per line; do not join statements with semicolons.
+Use a consistent formatter across the project. Recommended line length: 88.
+Keep short readable expressions horizontal. Wrap long expressions at semantic
+boundaries using parentheses, not explicit backslashes. Prefer two or three
+lines where practical; this is not a hard limit for signatures or collections.
+Use one blank line between meaningful internal groups, two between top-level
+definitions and one between methods. Avoid blank lines immediately inside a
+logical section. Follow formatter spacing around operators and annotations.
+Do not vertically align assignments or annotations with extra spaces: this SCL
+convention is deliberately replaced by stable Python formatting.
+
+3. Module header and attribution
+
+Every EIDO-owned application module must contain a compact module docstring
+describing its responsibility, important side effects and execution semantics.
+Place it after any required shebang or encoding declaration, before imports.
+Use equals-sign decorative separators of exactly 76 characters, measured from
+the first #; leading indentation is excluded. Include the module filename and
+the exact signature Developed by EIDO Automation, with an empty line before it.
+Keep the functional description normally within two to four lines.
+
+Preferred structure:
+
+    # ==========================================================================
+    """movie_catalog.py
+    Coordinates catalog queries without coupling providers to the user interface.
+    Network access occurs only when a query is explicitly requested.
+
+    Developed by EIDO Automation
+    """
+    # ==========================================================================
+
+The separators shown consist of '# ' plus 74 equals signs; omit trailing spaces.
+Do not add this attribution to third-party, generated or vendored code. Preserve
+existing copyright notices and licenses; the signature is not a license grant.
+Small __init__.py files may use only a short package docstring and signature.
+
+4. Functions, methods and classes
+
+Each callable has one primary responsibility. Document public functions,
+classes and methods with an English docstring describing purpose and contract.
+For private helpers, add a docstring when behavior is non-obvious; a trivial
+helper with a clear name does not require duplicated documentation.
+Use lightweight function documentation instead of repeating module banners
+around every method. Do not create classes solely to hold unrelated functions.
+Prefer pure functions for calculations and transformations; use classes when
+state, lifecycle or a cohesive dependency boundary makes them useful.
+
+5. Logical sections and folding regions
+
+Python has no executable REGION construct. Functions, methods and classes are
+the primary structural boundaries. A short function is itself a logical group;
+its docstring may fully document that group.
+
+For major sections in a long module or a substantial callable, use a two-line
+light header: '# --- Title ' followed by hyphens to total 76 characters, then
+a plain comment explaining the responsibility. Reserve '=' for module banners.
+Do not add closing decorative separators or banners around individual ifs.
+
+Optional editor folding markers '# region Title' and '# endregion' may enclose
+large module sections when supported by the project editor. They are comments,
+not scopes or runtime controls. They are not mandatory for every statement.
+Place a light title-and-description header immediately above each opening
+marker. Do not use regions to justify a function with unrelated responsibilities.
+
+6. Comments and documentation language
+
+Use English for identifiers, technical comments and docstrings. User-facing
+strings follow the application's language requirements independently.
+Explain intent, business rules, exceptional behavior, transitions, cancellation,
+resource ownership and non-obvious side effects. Put comments above the code
+they explain. Inline comments are mainly for fields or declarations whose
+meaning cannot be captured in the name. Do not narrate obvious syntax.
+Meaningful groups need explanatory documentation, but a section header or
+docstring can satisfy that requirement without another redundant comment.
+Remove obsolete comments and commented-out code; use version control instead.
+
+7. Naming
+
+Modules/packages: snake_case, short and descriptive.
+Functions/methods/parameters/variables/attributes: snake_case.
+Classes and exception types: PascalCase; domain exceptions end in Error.
+Constants and enum members: UPPER_SNAKE_CASE.
+Internal helpers and attributes: a single leading underscore where appropriate.
+Do not use FC_, FB_, UDT_ or DB_ prefixes in ordinary Python code.
+Do not encode types as str_, int_, bool_ prefixes.
+Use semantic Boolean names: is_ready, has_metadata, stop_requested,
+acquisition_done, attempts_exhausted. Prefixes are useful, not compulsory.
+Avoid flag1, temp2, aux and unexplained abbreviations.
+Include units where relevant: timeout_s, elapsed_ms, size_bytes.
+Preserve framework overrides and external schema names. Map JSON camelCase keys
+at the boundary rather than spreading them through internal Python objects.
+
+8. Public contracts and types
+
+Annotate public parameters and return values, including -> None when relevant.
+Annotate important state and ambiguous internal values; avoid annotating every
+obvious local assignment. Types aid review but do not validate external data.
+Document parameter semantics, units, valid ranges, defaults, return meaning,
+expected exceptions and side effects where relevant. Omit redundant Args or
+Returns entries only when the short docstring makes the full contract clear.
+Use one docstring convention consistently; Google-style sections are suitable.
+Group coherent data in dataclasses, TypedDicts or explicit domain models when
+appropriate. Do not replace a meaningful contract with an arbitrary dict.
+Use protocols/interfaces only when a real substitution boundary exists.
+Avoid oversized signatures; consider a cohesive configuration or request object.
+Never use mutable defaults for parameters; use None or dataclass default_factory.
+Avoid Any unless the dynamic boundary requires it; narrow types after validation.
+
+9. Conditions, loops and Boolean expressions
+
+Prefer positive conditions and early returns. Avoid nested negations and hidden
+side effects inside conditions. Check optional values with 'is None' when zero,
+False or an empty collection is a valid value. Use truthiness when that is the
+intended contract.
+Review nesting depth >= 3; depth >= 5 is a serious readability issue. These are
+review warnings, not unconditional failures. Extract named predicates when a
+condition has approximately four or five logical operators or mixed meanings.
+Comprehensions should remain simple; use an explicit loop for branching,
+exception handling, resource management or multiple side effects.
+
+10. States and decisions
+
+Use Enum for discrete domain states and commands. Use IntEnum only when numeric
+interoperability is required. Preserve externally defined protocol values.
+Use if/elif or match according to clarity and the supported Python version;
+match is not mandatory. Define handling for invalid external states.
+Give each transition and mutable state a clear owner. Document exceptional
+transitions and cancellation. Do not let independent callbacks overwrite the
+same state without a deliberate coordination mechanism.
+
+11. Constants and configuration
+
+Replace unexplained domain literals with named constants or configuration.
+Zero and one can remain literal when universally meaningful. Name protocol
+codes, timeouts, retry limits, units, paths and state identifiers when useful.
+Do not turn every string or number into a constant without semantic benefit.
+Use enum members for enumerated states; constants for invariants; configuration
+for deployment/user-specific settings. Validate configuration at its boundary.
+Keep credentials outside source code and examples. Never log access tokens,
+authorization headers or private configuration values.
+
+12. Data flow and side effects
+
+Separate acquisition, validation, transformation, decision and actuation where
+that helps comprehension. Make mutations explicit; prefer returning a result
+over changing caller-owned collections silently. Document intentional mutation.
+Give persistent state and outputs a clear owner. Avoid module-level mutable
+globals and hidden singletons. Initialize state explicitly in constructors or
+factories; importing a module must not start networking, threads or the UI.
+Use context managers and finally blocks for deterministic resource cleanup.
+Use pathlib for filesystem paths and explicit encoding for text files.
+Keep startup orchestration in an entry point protected by __name__ == '__main__'
+when applicable. Library modules must be safe to import.
+
+13. Errors and diagnostics
+
+Catch specific expected exceptions at boundaries that can handle them. Keep
+try blocks narrow. Avoid bare except, silent pass and returning success after
+failure. Broad Exception catches are acceptable only at a deliberate top-level
+boundary with reporting and a defined recovery or shutdown policy.
+Use 'raise DomainError(...) from exc' when translating errors and preserving
+their cause. Do not use exceptions for routine Boolean decisions.
+Use logging for runtime diagnostics, with appropriate severity and context.
+Use print only for deliberate CLI output. Keep technical details in diagnostics
+and give users clear actionable messages. Avoid duplicate logging at every layer.
+Provide network timeouts, bounded retries and cancellation where applicable;
+retry only eligible operations and consider idempotency.
+
+14. Concurrency and desktop applications
+
+Keep blocking networking, heavy computation and disk operations off the GUI
+thread. Return results through the framework's supported signals or scheduling.
+Do not update widgets from worker threads. Define ownership, cancellation and
+shutdown of workers. Use locks or message passing when state is shared.
+For async code, do not perform blocking operations in the event loop. Propagate
+cancellation correctly. Avoid fire-and-forget tasks without lifecycle ownership.
+These are Python execution requirements, not equivalents of a PLC scan cycle.
+
+15. Decomposition and project structure
+
+Review functions around 50-80 effective lines and modules around 400-600 effective
+lines. Review sections above about 100 lines or components with more than 5-7
+major responsibilities. These are contextual warnings, not mandatory splits.
+Split by responsibility, cohesion, testability and lifecycle, not line count alone.
+Keep domain logic separate from UI, persistence and external integrations.
+Organize by feature first where practical; avoid broad utils.py dumping grounds.
+Reuse verified existing components before reimplementing them. Avoid speculative
+abstraction, dependency injection frameworks and unnecessary layers.
+Dependency direction should be understandable and free of circular imports.
+
+16. Compatibility and tooling
+
+Declare the supported Python version and select syntax compatible with it.
+Use the existing project formatter/linter. For a new project, Ruff formatting
+and linting are a suitable baseline; do not combine competing formatters.
+Type checking with mypy or Pyright is appropriate when justified by the project.
+Formatting tools enforce layout, not intent, contract semantics or architecture.
+Do not claim an EIDO analyzer exists merely because rule IDs are listed below.
+Do not mass-reformat unrelated files during a functional change unless requested.
+
+17. Verification
+
+Use checks proportionate to the change: parsing/import checks for sources,
+targeted tests for functional behavior, and visual inspection for GUI changes.
+Test meaningful contracts and edge cases rather than duplicating implementation.
+Mock external services for deterministic unit tests; separate live integration
+checks. Verify timeouts, error paths, cancellation and state ownership when changed.
+Report commands actually executed and limitations. Passing compilation alone
+does not establish runtime correctness.
+
+18. Example
+
+The following Python 3.10+ example illustrates ownership, named states, explicit
+units, documented contracts and compact control flow. Each record_failure call
+represents one distinct completed failed operation, not a cyclic PLC scan.
+
+    from dataclasses import dataclass, field
+    from enum import Enum, auto
+
+    DEFAULT_MAX_ATTEMPTS = 3
+
+    class RetryDecision(Enum):
+        """Outcome of supervising one completed failed operation."""
+
+        RETRY = auto()
+        EXHAUSTED = auto()
+
+    @dataclass
+    class RetrySupervisor:
+        """Own the attempt counter for one operation sequence.
+
+        Args:
+            max_attempts: Maximum completed failures before retries stop.
+        """
+
+        max_attempts: int = DEFAULT_MAX_ATTEMPTS
+        _attempt_count: int = field(init=False, default=0)
+
+        def __post_init__(self) -> None:
+            if self.max_attempts < 1:
+                raise ValueError("max_attempts must be positive")
+
+        def reset(self) -> None:
+            """Start a new sequence after success or an explicit reset."""
+            self._attempt_count = 0
+
+        def record_failure(self) -> RetryDecision:
+            """Count one completed failure; aborted work must not call this.
+
+            Returns:
+                Whether another attempt is allowed by the sequence limit.
+            """
+            self._attempt_count += 1
+            if self._attempt_count >= self.max_attempts:
+                return RetryDecision.EXHAUSTED
+            return RetryDecision.RETRY
+
+The internal counter is excluded from the generated constructor and has one owner.
+
+19. Suggested Python analyzer rule IDs
+
+These EIDOPY identifiers describe future/custom checks and review criteria;
+they are not built-in Ruff, mypy or Pyright rules.
+
+EIDOPY1001 — Missing module documentation.
+EIDOPY1002 — Missing or mismatched module name in header.
+EIDOPY1003 — Missing functional responsibility description.
+EIDOPY1004 — Missing mandatory EIDO signature in owned modules.
+EIDOPY1101 — Undocumented public contract.
+EIDOPY1102 — Documentation repeats names without explaining semantics.
+EIDOPY1103 — Oversized public interface.
+EIDOPY1104 — Missing public parameter or return annotation.
+EIDOPY1105 — Mutable default argument or shared dataclass default.
+EIDOPY1201 — High nesting depth.
+EIDOPY1202 — Excessive nesting depth.
+EIDOPY1203 — Overly complex Boolean expression.
+EIDOPY1204 — Unnecessarily inverted logic.
+EIDOPY1301 — Unexplained domain literal.
+EIDOPY1302 — State or command should be symbolic.
+EIDOPY1401 — Function/module size merits review.
+EIDOPY1402 — Logical section size merits review.
+EIDOPY1403 — Component has too many unrelated responsibilities.
+EIDOPY1501 — Non-descriptive name.
+EIDOPY1502 — Non-descriptive temporary variable.
+EIDOPY1503 — Boolean does not express a condition/state/request.
+EIDOPY1601 — Import-time execution has uncontrolled side effects.
+EIDOPY1602 — Related assignments are excessively fragmented.
+EIDOPY1603 — Shared state has multiple uncoordinated writers.
+EIDOPY1604 — Hidden mutation of caller-owned data.
+EIDOPY1701 — Major section header missing where needed.
+EIDOPY1702 — Section purpose missing.
+EIDOPY1703 — Non-obvious logical group undocumented.
+EIDOPY1704 — Redundant line-by-line commentary.
+EIDOPY1801 — Tabs or incorrect indentation.
+EIDOPY1802 — Module banner format differs from the standard.
+EIDOPY1803 — Major section does not use a light header.
+EIDOPY1804 — Decorative separator differs from 76 characters.
+EIDOPY1805 — Artificial column alignment conflicts with formatter.
+EIDOPY1806 — Excessive whitespace or expression fragmentation.
+EIDOPY1807 — Naming differs from Python category convention.
+EIDOPY1808 — Executable-code comment belongs above its target.
+EIDOPY1901 — Bare catch or silently swallowed error.
+EIDOPY1902 — Missing cleanup of an owned resource.
+EIDOPY1903 — Blocking work in GUI thread/event loop.
+EIDOPY1904 — Credential in source or diagnostics.
+EIDOPY1905 — Unbounded external operation or retry sequence.
+
+20. Severity and exceptions
+
+Correctness/security findings must be distinguished from stylistic findings.
+Exposed credentials, broken ownership, swallowed failures and missing cleanup
+can be errors after contextual confirmation. Missing EIDO signature is a policy
+error only for owned modules under strict enforcement.
+Missing documentation, complexity, unexplained literals and oversized components
+are normally warnings. Layout, naming and compactness are normally suggestions.
+Section absence alone is not an error: a short, cohesive function needs no region.
+Generated code, framework overrides and external protocols require explicit
+exceptions. Record important deviations with their reason, without cluttering
+each line. Do not label functional behavior incorrect merely for style differences.
+
+21. Mapping from SCL/TIA
+
+FC -> cohesive function; FB -> class only when persistent state is needed.
+UDT -> dataclass/domain model/TypedDict according to runtime requirements.
+DB -> explicitly owned state or persistence service, not a global variable.
+Public PascalCase/internal camelCase -> Python snake_case.
+FC_/FB_ names -> descriptive functions and PascalCase classes.
+BEGIN header -> module docstring and EIDO banner.
+Mandatory REGION -> callable boundaries and optional documented sections.
+Local assignment alignment -> formatter-compatible single spacing.
+PLC scan transitions -> explicit event/call transitions and lifecycle ownership.
+Constants, meaningful names, English comments, compactness, single responsibility
+and clearly owned state -> retained directly.
+
+22. Instructions for Codex and reviewers
+
+Read this guide before changing Python code. Follow project contracts and the
+authorized task scope. Apply it to new or modified owned code, without unsolicited
+global refactors. Preserve behavior in style-only changes. Document material
+exceptions and report completed verification truthfully.
