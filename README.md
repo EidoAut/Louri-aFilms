@@ -12,7 +12,7 @@ Aplicación de escritorio para descubrir cinema, organizar unha colección local
 
 [Notas da versión](https://github.com/EidoAut/Louri-aFilms/releases/tag/v0.4.0) · [Sumas SHA-256](https://github.com/EidoAut/Louri-aFilms/releases/download/v0.4.0/SHA256SUMS.txt) · [Requisitos e instalación](#descargas-e-requisitos)
 
-O repositorio é privado: cómpre iniciar sesión cunha conta que teña acceso para descargar.
+As descargas son públicas e non precisan iniciar sesión en GitHub.
 
 ## Funcións
 
@@ -27,7 +27,7 @@ O repositorio é privado: cómpre iniciar sesión cunha conta que teña acceso p
 
 ## Descargas e requisitos
 
-As distribucións publícanse en [GitHub Releases](https://github.com/EidoAut/Louri-aFilms/releases). O repositorio é privado: cómpre ter acceso para descargar. A versión 0.4.0 publícase como **versión previa**, con paquetes Windows e Linux que superaron as comprobacións descritas nas notas. Consulta as notas da release para distinguir o sistema probado dos requisitos mínimos do framework.
+As distribucións publícanse en [GitHub Releases](https://github.com/EidoAut/Louri-aFilms/releases). A versión 0.4.0 publícase como **versión previa**, con paquetes Windows e Linux que superaron as comprobacións descritas nas notas. Consulta as notas da release para distinguir o sistema probado dos requisitos mínimos do framework.
 
 ### Windows
 
