@@ -1,4 +1,4 @@
-# TelePutin 0.3.2
+# LourihnaFilms 0.3.2
 
 ## Cambios
 
@@ -16,6 +16,6 @@ Los modelos públicos están en https://github.com/argosopentech/argospm-index ;
 
 Capturas: [calidad](screenshots/quality-selector.png), [botones con texto](screenshots/named-controls.png), [ajustes de traducción](screenshots/translation-settings.png).
 
-Prueba reproducible del motor empaquetado: `python scripts/verify_translation.py <TelePutin.exe> <carpeta-de-datos>/translation-models`. Los modelos se instalan al traducir por primera vez. El modelo español utilizado es en_es 1.0 y el gallego en_gl 1.9. Estos modelos descargados quedan en los datos del usuario, no en los ZIP.
+Prueba reproducible del motor empaquetado: `python scripts/verify_translation.py <lourihna_films.exe> <carpeta-de-datos>/translation-models`. Los modelos se instalan al traducir por primera vez. El modelo español utilizado es en_es 1.0 y el gallego en_gl 1.9. Estos modelos descargados quedan en los datos del usuario, no en los ZIP.
 
 El ejecutable portable pasó traducción local real en español/gallego con PATH sin Python, además de arranque, vídeo nativo, ciclo WebEngine, SQLite y cierre limpio.

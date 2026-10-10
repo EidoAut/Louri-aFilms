@@ -1,4 +1,4 @@
-# TelePutin 0.3.4
+# LourihnaFilms 0.3.4
 
 Explore now uses a virtualized vertical video grid. Scrolling near the end fetches the next public discovery page asynchronously. Results are deduplicated by provider and video ID, and exhausted sources are excluded from subsequent requests. Each Archive collection owns its pagination state. Page caches include the page number.
 

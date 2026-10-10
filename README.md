@@ -1,80 +1,103 @@
-# Louriña Films 0.3.4
+# Louriña Films
 
-Aplicación de cine en Python/PySide6/QML. Mantiene TMDB, OK.ru, Internet Archive, favoritos, historial y la nueva identidad de Louriña Films. Selecciona un vídeo y pulsa **Reproducir**: la ruta nativa se elige automáticamente; si fallan sus formatos públicos, se intenta el reproductor oficial integrado una sola vez. No guarda películas completas.
+Aplicación de escritorio para descubrir cinema, organizar unha colección local e reproducir fontes públicas compatibles. Emprega Python, PySide6/QML, SQLite e Qt Multimedia/WebEngine. Non precisa unha conta propia da aplicación.
 
-En **Explorar**, baja para cargar automáticamente más vídeos. Si una fuente falla, pulsa **Reintentar**; cuando no queden resultados, la carga se detiene.
+## Funcións
 
-## Windows portable
+- Busca de vídeos públicos en OK.ru e fontes alternativas de Internet Archive. A dispoñibilidade depende de cada provedor.
+- Catálogos opcionais de películas e series con metadatos de TMDB. Unha ficha de TMDB **non garante** que exista un vídeo reproducible.
+- Favoritos, historial, progreso, categorías locais, importación de ligazóns e exploración con carga progresiva.
+- Reprodutor integrado, formatos e calidades que a fonte expoña publicamente, e reprodutor oficial cando corresponda. Non elimina restricións de acceso nin DRM.
+- Tradución local opcional das sinopses mediante modelos descargados cando fan falta. A primeira tradución require conexión e pode tardar.
+- Interface en galego ou castelán e benvida co logotipo durante polo menos tres segundos.
 
-Extrae el ZIP completo y abre `TelePutin.exe`. Mantén `_internal` junto al ejecutable. No requiere instalar Python. El paquete se ha comprobado en Windows 11 x64; Windows 10 todavía requiere validación en una máquina real.
+![Pantalla de benvida real](docs/screenshots/splash.png)
 
-## Ejecutar desde el código
+## Descargas e requisitos
 
-Python 3.12 recomendado. En Windows:
+As distribucións publícanse en [GitHub Releases](https://github.com/EidoAut/Louri-aFilms/releases). O repositorio é privado: cómpre ter acceso para descargar. A versión 0.4.0 está en preparación; só se anexarán paquetes que superen as comprobacións. Consulta as notas da release para distinguir o sistema probado dos requisitos mínimos do framework.
 
-```powershell
-py -3.12 -m venv .venv
-.venv\Scripts\python -m pip install -r requirements.txt
-.venv\Scripts\python main.py
-```
+### Windows
 
-Después puedes utilizar `launch.ps1`. En Linux con sesión gráfica:
+1. Abre Releases e escolle a versión máis recente dispoñible.
+2. Para equipos Intel/AMD de 64 bits, escolle o instalador `lourihna-films-0.4.0-windows-x86_64-setup.exe`, cando figure entre os anexos da versión 0.4.0.
+3. Executa o instalador e segue os pasos. Instálase para o usuario actual, sen requirir permisos de administrador.
+4. Abre **Louriña Films** desde o menú Inicio ou o acceso directo e configura TMDB en **Axustes**, se queres utilizar ese catálogo.
+
+A compilación é x86_64, con Python 3.12 e Qt 6.12. O instalador require Windows 10 1809 ou posterior; a validación local realizouse no Windows deste equipo. Non hai unha compilación ARM nativa nin unha certificación independente de todas as versións de Windows. O instalador non está asinado cun certificado comercial.
+
+### Linux
+
+1. Abre Releases e busca `lourihna-films-0.4.0-linux-x86_64.tar.gz`, se está dispoñible.
+2. Escolle este paquete só para unha distribución x86_64 compatible coa base Ubuntu 24.04 e glibc 2.39 ou posterior. Outros escritorios e distribucións poden precisar bibliotecas adicionais.
+3. Descomprime o arquivo e entra no directorio `lourihna_films`.
+4. Executa `./lourihna_films` directamente ou `sh install.sh` para instalalo no teu directorio persoal e engadir a entrada do menú.
+5. Configura TMDB en **Axustes** de maneira opcional.
+
+Utilízase un arquivo portable con instalador por usuario en lugar de AppImage para conservar a estrutura de Qt/WebEngine sen introducir unha dependencia de FUSE. Non hai paquete ARM nin garantía para distribucións con glibc anterior. O workflow comproba o arranque con Xvfb; esa comprobación non substitúe unha proba interactiva en todos os escritorios.
+
+Os anexos automáticos **Source code (zip)** e **Source code (tar.gz)** son código fonte, **non instaladores**. Se unha plataforma non ten un paquete publicado, podes construílo seguindo as instrucións de desenvolvemento; non descargues un paquete doutra arquitectura.
+
+## TMDB
+
+En **Axustes**, o campo «Clave ou token de TMDB» admite:
+
+- **API Read Access Token**: introdúceo sen o prefixo `Bearer`. A aplicación envíao na cabeceira `Authorization: Bearer …`.
+- **API Key v3**: introduce a clave de 32 caracteres hexadecimais. A aplicación envíaa no parámetro `api_key`.
+
+Tamén podes configurar `TMDB_TOKEN` ou `TMDB_API_KEY` no contorno; o token ten prioridade. Non é necesario cambiar o método de autenticación. As credenciais gárdanse con DPAPI en Windows; noutros sistemas a interface só as conserva durante a sesión, ou podes empregar variables de contorno. Non compartas ficheiros `.env` con valores reais.
+
+Consulta a [autenticación oficial](https://developer.themoviedb.org/docs/authentication-application) e as [condicións e atribucións de TMDB](https://developer.themoviedb.org/docs/faq). A API de desenvolvemento permite uso non comercial con atribución; un uso comercial require acordar a licenza correspondente con TMDB.
+
+![TMDB](lourihna_films/assets/tmdb.svg)
+
+> This product uses the TMDB API but is not endorsed or certified by TMDB.
+
+As imaxes e os metadatos de terceiros non se relicencian baixo MIT.
+
+## Executar desde as fontes
+
+Require Python 3.12 ou posterior compatible coas dependencias; as comprobacións de distribución usan Python 3.12.
 
 ```sh
-python3.12 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
-sh launch.sh
-```
-
-Qt requiere las bibliotecas del sistema de la distribución (X11/XCB o Wayland, OpenGL y audio). No ejecutes WebEngine como root ni desactives su sandbox. Consulta los requisitos oficiales: https://doc.qt.io/qt-6/linux.html . No se ha construido ni probado un binario Linux en este equipo Windows.
-
-## Catálogo y claves
-
-La aplicación arranca sin claves: Explorar ofrece Archive, la biblioteca local conserva lo descubierto y puedes importar enlaces públicos de OK.ru. TMDB es opcional y aporta el catálogo cinematográfico: en **Ajustes**, introduce tu clave o token personal. Una ficha de TMDB no garantiza que exista un vídeo disponible. Revisa y selecciona los candidatos reales de OK.ru/Archive.
-
-El idioma de interfaz (español/gallego) es independiente del idioma TMDB. En Windows las claves guardadas se protegen con DPAPI. En Linux se conservan **sólo durante la sesión**, sin escribirlas en claro: tendrás que introducirlas de nuevo al abrir la aplicación. Las variables de entorno existentes siguen disponibles.
-
-## Búsqueda unificada
-
-Buscar prioriza OK.ru. Si no devuelve vídeos, consulta las demás fuentes públicas disponibles (actualmente Internet Archive); tu biblioteca sigue accesible. Si TMDB está configurado, incluye películas y series. No tienes que elegir proveedor. Los fallos de una fuente no eliminan los resultados de las demás; «Ver más» sólo consulta las fuentes que anunciaron otra página. Las fichas TMDB conservan su acción de detalles y los vídeos su acción de reproducción.
-
-## Controles
-
-- Espacio: pausa/reproducción. Flechas izquierda/derecha: 10 segundos. Arriba/abajo: volumen. M: silencio.
-- Pantalla completa conserva el estado anterior de la ventana. Escape sale de pantalla completa; después vuelve al catálogo.
-- Los controles aparecen con ratón o teclado y se ocultan durante la reproducción.
-- El motor nativo guarda posición cada cinco segundos y al pausar/salir. **Continuar viendo**, **Pendientes** y **Terminada** son estados distintos. El reproductor web no inventa posiciones.
-- Herramientas de organización, página original y actualización están en menús secundarios.
-
-## Datos
-
-Windows: `%LOCALAPPDATA%/TelePutin`. Linux: `$XDG_DATA_HOME/TelePutin` o `~/.local/share/TelePutin`. `TELEPUTIN_DATA_DIR` permite usar otra carpeta. SQLite conserva favoritos, categorías, títulos locales e historial. Las URLs temporales de reproducción no se guardan en la biblioteca. Logs rotativos: `teleputin.log`; no compartas tu base de datos personal.
-
-## Pruebas y empaquetado
-
-```sh
+python -m venv .venv
+# Windows PowerShell: .venv\Scripts\Activate.ps1
+# Linux: . .venv/bin/activate
 python -m pip install -e ".[dev]"
-python -m pytest -q
-python scripts/verify_ui.py --compact
-python scripts/verify_controls.py
-python scripts/verify_buffered_player.py https://ok.ru/video/2116476930726 --require-audio
-python scripts/verify_buffered_player.py https://archive.org/details/Horror_Express --require-audio
-python -m PyInstaller --noconfirm TelePutin.spec
-python scripts/verify_executable.py dist/TelePutin/TelePutin.exe
+python main.py
 ```
 
-Usa el Python del entorno virtual; en Linux el ejecutable es `dist/TelePutin/TelePutin`, sin `.exe`. Compila en cada sistema de destino: PyInstaller no genera binarios Linux desde Windows. PySide está limitado a `<6.13`, ya que Qt 6.12 es la última rama que anuncia Windows 10: https://doc.qt.io/qt-6/supported-platforms.html .
+En Linux, instala as bibliotecas de Qt indicadas no [workflow](.github/workflows/build.yml). A reprodución require un escritorio gráfico e as bibliotecas multimedia do paquete. As descargas e os servizos externos precisan conexión á Internet.
 
-Consulta [cambios actuales](docs/CHANGES-0.3.2.md), [auditoría y limitaciones](docs/AUDIT-0.3.1.md), [reproducción](docs/BUFFERED-PLAYBACK.md) y [licencias](docs/licenses/THIRD-PARTY.md). Los scripts de verificación usan datos aislados; sus títulos ficticios sólo son fixtures de pruebas, nunca resultados del catálogo.
+## Datos e migración
 
+O destino principal é `%LOCALAPPDATA%/lourihna_films` en Windows e `$XDG_DATA_HOME/lourihna_films` en Linux, ou `~/.local/share/lourihna_films` se a variable non está definida. `LOURIHNA_FILMS_DATA_DIR` permite escoller un directorio illado.
 
-## Traducción gratuita y calidad de vídeo
+A primeira apertura copia a biblioteca da identidade anterior mediante unha copia coherente de SQLite. Conserva os orixinais e non substitúe unha base existente no destino. Inclúe preferencias, favoritos, historial, catálogo e as cachés auxiliares dispoñibles. Os detalles da compatibilidade están en [EIDO e migración](docs/EIDO-MIGRATION.md).
 
-En Ajustes, elige el idioma de las sinopsis y guarda. Si una ficha TMDB no ofrece sinopsis en ese idioma, al abrirla se obtiene la versión inglesa y se traduce en tu equipo. No necesita cuenta ni API de pago. La primera vez descarga el modelo Argos correspondiente; español y gallego ya están preparados en este equipo. Los modelos no se incluyen en los ZIP y se descargan al necesitarlos en otro equipo. Idiomas soportados: español, gallego, francés, alemán y ruso, partiendo del inglés. La traducción se etiqueta como automática, conserva el original y se guarda en caché. Puedes desactivarla en Ajustes. Si no hay sinopsis inglesa o falla el modelo, se conserva la descripción disponible.
+## Desenvolvemento e empaquetado
 
-El reproductor ofrece un selector de calidad cuando el vídeo publica varias variantes. Sólo muestra las disponibles. OK.ru suele dar etiquetas Móvil/Baja/SD/HD, sin resolución numérica: la altura real se muestra al reproducir la variante. No se anuncian 320p/720p/1080p sin conocer las dimensiones. Cambiar de variante conserva posición y pausa cuando la fuente admite desplazamiento. El reproductor oficial web conserva sus propios controles de calidad.
+Le [AGENTS.md](AGENTS.md) e a [guía EIDO Python](docs/standards/EIDO_Python_Programming_Style_Guide_v1.0.txt). Os comentarios e contratos técnicos están en inglés.
 
+```sh
+python -m ruff check .
+python -m ruff format --check .
+python -m pytest -q
+python scripts/verify_ui.py --compact --stress-explore
+python scripts/verify_controls.py
+python -m PyInstaller --noconfirm lourihna_films.spec
+```
 
-## Navegación 0.3.3
+Windows: executa `ISCC packaging/windows.iss` con Inno Setup despois de PyInstaller. O instalador queda en `dist/packages/`. Comproba a aplicación con `python scripts/verify_executable.py dist/lourihna_films/lourihna_films.exe`.
 
-Los catálogos ya visitados se reutilizan durante cinco minutos para evitar recargas al cambiar de menú. «Opciones → Actualizar catálogo» fuerza la actualización. Repetir un clic en la sección que está cargando no reinicia la petición. El indicador muestra qué operación está pendiente. Las tarjetas parten también títulos sin espacios, limitan el texto a dos líneas y ajustan la resolución de sus imágenes al tamaño visible.
+Linux: constrúe nun Linux x86_64 compatible, executa a mesma verificación sobre `dist/lourihna_films/lourihna_films` e segue o paso de empaquetado do workflow para incluír `install.sh`. Non se xeran binarios Linux desde Windows por compilación cruzada.
+
+[GitHub Actions](https://github.com/EidoAut/Louri-aFilms/actions) constrúe e verifica cada plataforma con permisos de lectura. A publicación da release realízase despois de revisar os resultados; os workflows non precisan claves persoais de TMDB.
+
+## Licenza e créditos
+
+Código propio baixo [MIT](LICENSE), copyright © 2026 Samuel Seijo Ribeiro. Desenvolvido por EIDO Automation.
+
+O logotipo actual foi facilitado polo titular do proxecto e consérvase sen modificacións neste cambio. Qt/PySide, FFmpeg, Chromium/WebEngine, Inter e as demais dependencias manteñen as súas propias licenzas e avisos en [docs/licenses](docs/licenses/THIRD-PARTY.md). Os modelos de tradución descárganse por separado e non están incluídos na distribución.
+
+As bibliotecas LGPL distribúense como bibliotecas dinámicas substituíbles. As instrucións anteriores permiten reconstruír a aplicación; non se impide depurar modificacións desas bibliotecas. As fontes e os avisos dos compoñentes correspondentes están enlazados no documento de terceiros. MIT non concede dereitos sobre películas, metadatos, marcas nin contidos dos provedores.

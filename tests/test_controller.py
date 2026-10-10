@@ -1,22 +1,52 @@
+# ==========================================================================
+"""test_controller.py
+Verify controller contracts using isolated fixtures.
+
+Developed by EIDO Automation
+"""
+
+# ==========================================================================
+from __future__ import annotations
+
 import time
+
 import pytest
 from PySide6.QtCore import QCoreApplication
-from teleputin.controllers.application_controller import ApplicationController
-from teleputin.database.engine import create_database
-from teleputin.database.repositories import Repository
+
+from lourihna_films.controllers.application_controller import ApplicationController
+from lourihna_films.database.engine import create_database
+from lourihna_films.database.repositories import Repository
 
 
 @pytest.fixture
 def controller(tmp_path, monkeypatch):
-    async def offline_metadata(self, video_id): return {}
-    async def empty_archive(self, query, page=1, collection=None): return []
-    async def empty_public(self, query, page=1): return []
-    async def formats(client, url): return [{"url": "https://vd296.okcdn.ru/test", "quality": "low"}]
-    monkeypatch.setattr("teleputin.providers.public_media.resolve_public_formats", formats)
-    monkeypatch.setattr("teleputin.providers.archive.ArchiveProvider.search", empty_archive)
-    monkeypatch.setattr("teleputin.providers.direct_search.DirectPublicSearch.search", empty_public)
-    monkeypatch.setattr("teleputin.providers.public_metadata.PublicMetadata.fetch", offline_metadata)
-    for name in ("TMDB_TOKEN", "TMDB_API_KEY", "BRAVE_SEARCH_API_KEY"): monkeypatch.delenv(name, raising=False)
+    async def offline_metadata(self, video_id):
+        return {}
+
+    async def empty_archive(self, query, page=1, collection=None):
+        return []
+
+    async def empty_public(self, query, page=1):
+        return []
+
+    async def formats(client, url):
+        return [{"url": "https://vd296.okcdn.ru/test", "quality": "low"}]
+
+    monkeypatch.setattr(
+        "lourihna_films.providers.public_media.resolve_public_formats", formats
+    )
+    monkeypatch.setattr(
+        "lourihna_films.providers.archive.ArchiveProvider.search", empty_archive
+    )
+    monkeypatch.setattr(
+        "lourihna_films.providers.direct_search.DirectPublicSearch.search", empty_public
+    )
+    monkeypatch.setattr(
+        "lourihna_films.providers.public_metadata.PublicMetadata.fetch",
+        offline_metadata,
+    )
+    for name in ("TMDB_TOKEN", "TMDB_API_KEY", "BRAVE_SEARCH_API_KEY"):
+        monkeypatch.delenv(name, raising=False)
     app = QCoreApplication.instance() or QCoreApplication([])
     engine = create_database(tmp_path / "controller.db")
     controller = ApplicationController(Repository(engine))
@@ -61,10 +91,14 @@ def test_failed_load_more_can_retry_same_page(controller):
 def test_catalog_requires_tmdb_but_explore_remains_available(controller, monkeypatch):
     controller, app = controller
     calls = []
+
     async def discover(self, page, on_row=None):
         calls.append(page)
         return {"rows": [], "notice": "Public source offline"}
-    monkeypatch.setattr("teleputin.services.discovery_service.DiscoveryService.load", discover)
+
+    monkeypatch.setattr(
+        "lourihna_films.services.discovery_service.DiscoveryService.load", discover
+    )
     for page in ("Home", "Movies", "Series", "Documentaries"):
         controller.navigate(page)
         assert not controller.state["busy"]
@@ -99,7 +133,10 @@ def test_import_populates_home_and_local_search(controller):
 def test_utf8_file_import_and_invalid_file(controller, tmp_path):
     controller, app = controller
     file = tmp_path / "links.txt"
-    file.write_text("\ufeffPublic links\nhttps://ok.ru/video/123\nhttps://ok.ru/video/456", encoding="utf-8")
+    file.write_text(
+        "\ufeffPublic links\nhttps://ok.ru/video/123\nhttps://ok.ru/video/456",
+        encoding="utf-8",
+    )
     controller.importFile(file.as_uri(), "Concerts")
     deadline = time.monotonic() + 15
     while controller.state["busy"] and time.monotonic() < deadline:
@@ -118,16 +155,36 @@ def wait_for_result(controller, app):
     assert not controller.state["busy"]
 
 
-def test_archive_player_validates_metadata_and_returns_to_search(controller, monkeypatch):
-    from teleputin.models.video import VideoResult
+def test_archive_player_validates_metadata_and_returns_to_search(
+    controller, monkeypatch
+):
+    from lourihna_films.models.video import VideoResult
+
     controller, app = controller
     calls = []
+
     async def metadata(self, identifier):
         calls.append(identifier)
-        return VideoResult(id=identifier, provider="archive", title="Film", original_url="https://archive.org/details/film", embed_url="https://archive.org/embed/film")
-    monkeypatch.setattr("teleputin.providers.archive.ArchiveProvider.get_video", metadata)
+        return VideoResult(
+            id=identifier,
+            provider="archive",
+            title="Film",
+            original_url="https://archive.org/details/film",
+            embed_url="https://archive.org/embed/film",
+        )
+
+    monkeypatch.setattr(
+        "lourihna_films.providers.archive.ArchiveProvider.get_video", metadata
+    )
     controller.update(page="Search", query="Film", results=[{"key": "archive:film"}])
-    controller.play({"kind": "video", "provider": "archive", "original_url": "https://archive.org/details/film", "embed_url": "https://evil.test"})
+    controller.play(
+        {
+            "kind": "video",
+            "provider": "archive",
+            "original_url": "https://archive.org/details/film",
+            "embed_url": "https://evil.test",
+        }
+    )
     wait_for_result(controller, app)
     assert calls == ["film"]
     assert controller.state["player"]["embed_url"] == "https://archive.org/embed/film"
@@ -139,11 +196,23 @@ def test_archive_player_validates_metadata_and_returns_to_search(controller, mon
 
 
 def test_restricted_archive_does_not_record_player_history(controller, monkeypatch):
-    from teleputin.core.exceptions import ServiceError
+    from lourihna_films.core.exceptions import ServiceError
+
     controller, app = controller
-    async def denied(self, identifier): raise ServiceError("Restricted item")
-    monkeypatch.setattr("teleputin.providers.archive.ArchiveProvider.get_video", denied)
-    controller.play({"kind": "video", "provider": "archive", "original_url": "https://archive.org/details/film"})
+
+    async def denied(self, identifier):
+        raise ServiceError("Restricted item")
+
+    monkeypatch.setattr(
+        "lourihna_films.providers.archive.ArchiveProvider.get_video", denied
+    )
+    controller.play(
+        {
+            "kind": "video",
+            "provider": "archive",
+            "original_url": "https://archive.org/details/film",
+        }
+    )
     wait_for_result(controller, app)
     assert controller.state["player"] == {}
     assert controller.repo.history() == []
@@ -155,44 +224,80 @@ def test_tmdb_is_primary_home_source(controller, monkeypatch):
     controller.config["tmdb_key"] = "test"
     controller.update(tmdbAvailable=True)
     calls = []
+
     async def catalog(self, path, kind="movie", **params):
         calls.append(path)
         return [{"id": 1, "key": kind + ":1", "kind": kind, "title": "Catalog title"}]
-    async def fail(*args): raise AssertionError("Home must not query public videos")
-    monkeypatch.setattr("teleputin.services.tmdb_service.TMDBService.listing", catalog)
-    monkeypatch.setattr("teleputin.services.discovery_service.DiscoveryService.load", fail)
+
+    async def fail(*args):
+        raise AssertionError("Home must not query public videos")
+
+    monkeypatch.setattr(
+        "lourihna_films.services.tmdb_service.TMDBService.listing", catalog
+    )
+    monkeypatch.setattr(
+        "lourihna_films.services.discovery_service.DiscoveryService.load", fail
+    )
     controller.navigate("Home")
     wait_for_result(controller, app)
     assert len(controller.state["rows"]) == 5
     assert "trending/movie/week" in calls
-    assert all(row["items"][0]["kind"] in ("movie", "tv") for row in controller.state["rows"])
+    assert all(
+        row["items"][0]["kind"] in ("movie", "tv") for row in controller.state["rows"]
+    )
 
 
 def test_federated_search_keeps_working_source(controller, monkeypatch):
-    from teleputin.core.exceptions import ServiceError
-    from teleputin.models.video import VideoResult
+    from lourihna_films.core.exceptions import ServiceError
+    from lourihna_films.models.video import VideoResult
+
     controller, app = controller
-    async def broken(self, query, page=1): raise ServiceError("OK.ru offline")
+
+    async def broken(self, query, page=1):
+        raise ServiceError("OK.ru offline")
+
     async def archive(self, query, page=1, collection=None):
-        return [VideoResult(id="film", provider="archive", title="Film", original_url="https://archive.org/details/film")]
-    monkeypatch.setattr("teleputin.providers.direct_search.DirectPublicSearch.search", broken)
-    monkeypatch.setattr("teleputin.providers.archive.ArchiveProvider.search", archive)
+        return [
+            VideoResult(
+                id="film",
+                provider="archive",
+                title="Film",
+                original_url="https://archive.org/details/film",
+            )
+        ]
+
+    monkeypatch.setattr(
+        "lourihna_films.providers.direct_search.DirectPublicSearch.search", broken
+    )
+    monkeypatch.setattr(
+        "lourihna_films.providers.archive.ArchiveProvider.search", archive
+    )
     controller.search("Film", "Discover")
     wait_for_result(controller, app)
     assert controller.state["results"][0]["provider"] == "archive"
     assert "Algunas fuentes" in controller.state["message"]
 
 
-def test_catalog_selection_searches_candidates_without_autoplay(controller, monkeypatch):
+def test_catalog_selection_searches_candidates_without_autoplay(
+    controller, monkeypatch
+):
     controller, app = controller
     controller.update(tmdbAvailable=True)
     catalog = {"kind": "movie", "id": 7, "key": "movie:7", "title": "Film"}
-    async def details(self, identifier, kind): return catalog
+
+    async def details(self, identifier, kind):
+        return catalog
+
     async def candidates(self, item):
         assert item == catalog
         return {"items": [{"key": "okru:1", "title": "Candidate"}], "notice": ""}
-    monkeypatch.setattr("teleputin.services.tmdb_service.TMDBService.details", details)
-    monkeypatch.setattr("teleputin.services.candidate_service.CandidateService.find", candidates)
+
+    monkeypatch.setattr(
+        "lourihna_films.services.tmdb_service.TMDBService.details", details
+    )
+    monkeypatch.setattr(
+        "lourihna_films.services.candidate_service.CandidateService.find", candidates
+    )
     controller.select(catalog)
     wait_for_result(controller, app)
     assert controller.state["page"] == "Details"
@@ -209,10 +314,13 @@ def test_late_candidate_response_cannot_replace_new_screen(controller):
 
 
 def test_settings_accepts_v3_key_and_encrypts_it(controller, monkeypatch):
-    from teleputin.core.secrets import reveal
+    from lourihna_films.core.secrets import reveal
+
     controller, app = controller
     submitted = []
-    monkeypatch.setattr(controller, "submit", lambda tag, operation: submitted.append(tag))
+    monkeypatch.setattr(
+        controller, "submit", lambda tag, operation: submitted.append(tag)
+    )
     key = "a" * 32
     controller.saveSettings(key, "", "es-ES")
     saved = controller.repo.settings()
@@ -223,12 +331,21 @@ def test_settings_accepts_v3_key_and_encrypts_it(controller, monkeypatch):
     assert submitted == ["settings"]
 
 
-
-def test_legacy_catalog_favorite_does_not_contact_former_catalog(controller, monkeypatch):
+def test_legacy_catalog_favorite_does_not_contact_former_catalog(
+    controller, monkeypatch
+):
     controller, app = controller
-    def submit(*args): raise AssertionError("Legacy entry must not trigger a catalog request")
+
+    def submit(*args):
+        raise AssertionError("Legacy entry must not trigger a catalog request")
+
     monkeypatch.setattr(controller, "submit", submit)
-    entry = {"kind": "catalog", "key": "rarefilmm:old", "title": "Old saved title", "source_entry": {"source_url": "https://rarefilmm.com/2020/01/old/"}}
+    entry = {
+        "kind": "catalog",
+        "key": "rarefilmm:old",
+        "title": "Old saved title",
+        "source_entry": {"source_url": "https://rarefilmm.com/2020/01/old/"},
+    }
     controller.favorite(entry)
     controller.select(entry)
     assert controller.state["details"]["title"] == entry["title"]
@@ -238,15 +355,27 @@ def test_legacy_catalog_favorite_does_not_contact_former_catalog(controller, mon
 
 def test_playback_rejects_known_embed_denial(controller):
     controller, app = controller
-    controller.play({"kind": "video", "provider": "okru", "original_url": "https://ok.ru/video/123", "is_embeddable": False})
+    controller.play(
+        {
+            "kind": "video",
+            "provider": "okru",
+            "original_url": "https://ok.ru/video/123",
+            "is_embeddable": False,
+        }
+    )
     assert not controller.state["player"]
     assert "Embedding is unavailable" in controller.state["message"]
 
 
-def test_official_embed_browser_fallback_uses_existing_validated_opener(controller, monkeypatch):
+def test_official_embed_browser_fallback_uses_existing_validated_opener(
+    controller, monkeypatch
+):
     controller, app = controller
     opened = []
-    monkeypatch.setattr("teleputin.controllers.application_controller.QDesktopServices.openUrl", lambda url: opened.append(url.toString()) or True)
+    monkeypatch.setattr(
+        "lourihna_films.controllers.application_controller.QDesktopServices.openUrl",
+        lambda url: opened.append(url.toString()) or True,
+    )
     controller.openExternal("https://ok.ru/videoembed/4160762481308")
     controller.openExternal("https://ok.ru.evil.test/videoembed/4160762481308")
     assert opened == ["https://ok.ru/videoembed/4160762481308"]
@@ -254,11 +383,26 @@ def test_official_embed_browser_fallback_uses_existing_validated_opener(controll
 
 def test_buffered_source_stays_ephemeral_and_cancels_on_exit(controller, monkeypatch):
     controller, app = controller
+
     async def resolve(client, url):
         assert url == "https://ok.ru/video/123"
-        return [{"url": "https://vd296.okcdn.ru/video?token=temporary", "quality": "low"}]
-    monkeypatch.setattr("teleputin.providers.public_media.resolve_public_formats", resolve)
-    controller.play({"kind": "video", "provider": "okru", "id": "123", "key": "okru:123", "title": "Fixture", "original_url": "https://ok.ru/video/123"})
+        return [
+            {"url": "https://vd296.okcdn.ru/video?token=temporary", "quality": "low"}
+        ]
+
+    monkeypatch.setattr(
+        "lourihna_films.providers.public_media.resolve_public_formats", resolve
+    )
+    controller.play(
+        {
+            "kind": "video",
+            "provider": "okru",
+            "id": "123",
+            "key": "okru:123",
+            "title": "Fixture",
+            "original_url": "https://ok.ru/video/123",
+        }
+    )
     controller.playBuffered()
     deadline = time.monotonic() + 5
     while controller.state["busy"] and time.monotonic() < deadline:
@@ -273,10 +417,22 @@ def test_buffered_source_stays_ephemeral_and_cancels_on_exit(controller, monkeyp
 
 def test_automatic_playback_retries_only_available_sources(controller, monkeypatch):
     controller, app = controller
+
     async def sources(client, url):
-        return [{"url": "https://vd296.okcdn.ru/a", "quality": "hd"}, {"url": "https://vd296.okcdn.ru/b", "quality": "low"}]
-    monkeypatch.setattr("teleputin.providers.public_media.resolve_public_formats", sources)
-    item = {"kind": "video", "provider": "okru", "original_url": "https://ok.ru/video/123", "title": "Fixture"}
+        return [
+            {"url": "https://vd296.okcdn.ru/a", "quality": "hd"},
+            {"url": "https://vd296.okcdn.ru/b", "quality": "low"},
+        ]
+
+    monkeypatch.setattr(
+        "lourihna_films.providers.public_media.resolve_public_formats", sources
+    )
+    item = {
+        "kind": "video",
+        "provider": "okru",
+        "original_url": "https://ok.ru/video/123",
+        "title": "Fixture",
+    }
     controller.play(item)
     wait_for_result(controller, app)
     assert controller.state["playbackPhase"] == "native"
@@ -295,7 +451,12 @@ def test_automatic_playback_retries_only_available_sources(controller, monkeypat
 
 def test_progress_resume_finish_and_stale_session(controller):
     controller, app = controller
-    item = {"kind": "video", "provider": "okru", "original_url": "https://ok.ru/video/123", "title": "Fixture"}
+    item = {
+        "kind": "video",
+        "provider": "okru",
+        "original_url": "https://ok.ru/video/123",
+        "title": "Fixture",
+    }
     controller.play(item)
     wait_for_result(controller, app)
     session = controller.state["playbackSession"]
@@ -328,10 +489,14 @@ def test_volume_and_interface_preferences_are_separate_from_metadata(controller)
 def test_default_search_prioritizes_okru(controller, monkeypatch):
     controller, app = controller
     calls = []
+
     async def search(self, query, page=1, provider="okru", remember=True):
         calls.append(provider)
         return {"items": [{"key": provider + ":123", "kind": "video"}], "more": False}
-    monkeypatch.setattr("teleputin.services.search_service.SearchService.search", search)
+
+    monkeypatch.setattr(
+        "lourihna_films.services.search_service.SearchService.search", search
+    )
     controller.search("film")
     wait_for_result(controller, app)
     assert set(calls) == {"okru"}
@@ -341,14 +506,21 @@ def test_default_search_prioritizes_okru(controller, monkeypatch):
 
 def test_manual_quality_selection_retains_full_choice_list(controller):
     controller, app = controller
-    sources = [{"url": "https://example.test/" + str(i), "quality": str(i)} for i in range(5)]
-    controller.update(bufferedMedia={**sources[0], "sources": sources, "index": 0}, player={"key": "okru:1", "provider": "okru"}, playbackSession=1)
+    sources = [
+        {"url": "https://example.test/" + str(i), "quality": str(i)} for i in range(5)
+    ]
+    controller.update(
+        bufferedMedia={**sources[0], "sources": sources, "index": 0},
+        player={"key": "okru:1", "provider": "okru"},
+        playbackSession=1,
+    )
     controller.selectQuality(4)
     assert controller.state["bufferedMedia"]["index"] == 4
     controller.selectQuality(99)
     assert controller.state["bufferedMedia"]["index"] == 4
     controller.selectQuality(0)
-    for _ in range(3): controller.playbackFailed("okru:1", 1, 1)
+    for _ in range(3):
+        controller.playbackFailed("okru:1", 1, 1)
     assert controller.state["playbackPhase"] == "web"
 
 
@@ -377,15 +549,24 @@ def test_reselecting_loading_menu_does_not_restart_request(controller, monkeypat
     assert not calls
 
 
-def test_explore_appends_deduplicates_and_retries_without_skipping(controller, monkeypatch):
+def test_explore_appends_deduplicates_and_retries_without_skipping(
+    controller, monkeypatch
+):
     controller, app = controller
-    controller.update(page="Explore", exploreItems=[{"key": "okru:1"}], exploreMore=True, exploreNumber=1)
+    controller.update(
+        page="Explore",
+        exploreItems=[{"key": "okru:1"}],
+        exploreMore=True,
+        exploreNumber=1,
+    )
     controller.explore_active = ["okru"]
     calls = []
+
     def submit(tag, operation):
         calls.append(tag)
         controller.generations[tag] = len(calls)
         controller.update(busy=True)
+
     monkeypatch.setattr(controller, "submit", submit)
     controller.moreExplore()
     controller.moreExplore()
@@ -394,7 +575,16 @@ def test_explore_appends_deduplicates_and_retries_without_skipping(controller, m
     assert controller.state["exploreNumber"] == 1
     assert controller.state["exploreError"]
     controller.moreExplore()
-    controller._receive("exploreMore", 2, {"rows": [{"items": [{"key": "okru:1"}, {"key": "okru:2"}]}], "active": [], "number": 2}, "")
+    controller._receive(
+        "exploreMore",
+        2,
+        {
+            "rows": [{"items": [{"key": "okru:1"}, {"key": "okru:2"}]}],
+            "active": [],
+            "number": 2,
+        },
+        "",
+    )
     assert [x["key"] for x in controller.state["exploreItems"]] == ["okru:1", "okru:2"]
     assert not controller.state["exploreMore"]
     controller.moreExplore()
@@ -403,12 +593,18 @@ def test_explore_appends_deduplicates_and_retries_without_skipping(controller, m
 
 def test_catalog_shows_fast_row_before_slow_source(controller, monkeypatch):
     import asyncio
-    from teleputin.services.tmdb_service import TMDBService
+
+    from lourihna_films.services.tmdb_service import TMDBService
+
     controller, app = controller
-    async def fast(self): return [{"key": "tv:1", "title": "Ready"}]
+
+    async def fast(self):
+        return [{"key": "tv:1", "title": "Ready"}]
+
     async def slow(self, *args):
         await asyncio.sleep(30)
         return []
+
     monkeypatch.setattr(TMDBService, "popular_series", fast)
     monkeypatch.setattr(TMDBService, "trending_movies", slow)
     monkeypatch.setattr(TMDBService, "discover", slow)
@@ -427,15 +623,31 @@ def test_catalog_shows_fast_row_before_slow_source(controller, monkeypatch):
     assert controller.state["rows"] == before
 
 
-def test_explore_displays_fast_collection_while_search_is_pending(controller, monkeypatch):
+def test_explore_displays_fast_collection_while_search_is_pending(
+    controller, monkeypatch
+):
     import asyncio
-    from teleputin.services.search_service import SearchService
+
+    from lourihna_films.services.search_service import SearchService
+
     controller, app = controller
-    controller.repo.cache_put("collection-v2:Movies:1", "", "archive", {
-        "title": "Movies", "items": [{"key": "archive:ready"}], "source": "Movies", "more": False}, ttl=60)
+    controller.repo.cache_put(
+        "collection-v2:Movies:1",
+        "",
+        "archive",
+        {
+            "title": "Movies",
+            "items": [{"key": "archive:ready"}],
+            "source": "Movies",
+            "more": False,
+        },
+        ttl=60,
+    )
+
     async def slow(self, *args, **kwargs):
         await asyncio.sleep(30)
         return {"items": [], "more": False}
+
     monkeypatch.setattr(SearchService, "search", slow)
     controller.navigate("Explore")
     deadline = time.monotonic() + 5
@@ -448,6 +660,7 @@ def test_explore_displays_fast_collection_while_search_is_pending(controller, mo
 
 def test_large_explore_payload_is_not_copied_into_general_ui_state(controller):
     import json
+
     controller, app = controller
     notifications = []
     controller.exploreItemsChanged.connect(lambda: notifications.append(True))

@@ -18,5 +18,5 @@ artifacts/
 .cache/
 .env.*
 !.env.example
-docs/screenshots/
+docs/screenshots/*
 !docs/screenshots/splash.png

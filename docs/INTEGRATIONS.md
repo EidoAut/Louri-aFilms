@@ -1,4 +1,4 @@
-# TelePutin 0.3.0 integration research
+# LourihnaFilms 0.3.0 integration research
 
 Checked 2026-10-10. External pages and HTML structures can change.
 

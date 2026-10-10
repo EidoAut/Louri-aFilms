@@ -1,4 +1,4 @@
-# TelePutin 0.3.3
+# LourihnaFilms 0.3.3
 
 - Fixed long filename-style titles overflowing into adjacent cards: bounded text rectangle, wrapping and ellipsis. Thumbnail decoding is limited to the displayed width at the current pixel density.
 - Catalog sections retain completed results in memory for five minutes. Reopening a section no longer empties/reloads an unchanged catalog. Explicit Refresh and configuration changes invalidate this cache. Repeated selection of an already loading section does not cancel/restart its request.

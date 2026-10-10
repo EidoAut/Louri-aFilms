@@ -1,0 +1,5 @@
+* text=auto eol=lf
+*.png binary
+*.ico binary
+*.ttf binary
+docs/standards/EIDO_Python_Programming_Style_Guide_v1.0.txt -text

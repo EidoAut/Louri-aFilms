@@ -1,4 +1,4 @@
-# Auditoría TelePutin 0.3.1
+# Auditoría LourihnaFilms 0.3.1
 
 Fecha: 10 de octubre de 2026. Proyecto existente modificado directamente, sin reescritura ni cambio de logotipo. Código fuente: carpeta Codigo. Las capturas usan fixtures explícitos de pruebas, no resultados inventados de una búsqueda real.
 
@@ -20,7 +20,7 @@ La ficha concreta de Archive `HisNewJobCharlesChaplin-1915`, mostrada en la capt
 | Idiomas | Strings.qml y pantallas | Español predeterminado, gallego disponible, idioma TMDB separado; algunos avisos del backend heredado siguen en español/inglés |
 | Compatibilidad | core/secrets.py, core/config.py, launch.sh, dependencias | Linux conserva claves sólo en memoria durante la sesión; rutas XDG; Qt limitado a ramas con soporte declarado de Windows 10 |
 | Diagnósticos | controlador y logging | Tipo y ubicación de excepciones; error multimedia con URLs y tokens redactados; logs rotativos |
-| Distribución | TelePutin.spec, docs/licenses | Plugin multimedia y DLL de FFmpeg incluidas, textos de licencia y referencias de fuentes |
+| Distribución | lourihna_films.spec, docs/licenses | Plugin multimedia y DLL de FFmpeg incluidas, textos de licencia y referencias de fuentes |
 
 La búsqueda pública HTML de OK.ru no tiene un contrato estable de paginación. Se mantienen sus límites y el fallback de búsqueda web; no se promete acceso a todo el catálogo. RareFilmm no es una dependencia del catálogo. TMDB aporta metadatos, no disponibilidad. La asociación vídeo/ficha se conserva sólo al elegir un candidato y guarda método, puntuación y origen; el ranking no prueba identidad ni derechos.
 
@@ -49,7 +49,7 @@ Se comprobó que avcodec-63.dll, avformat-63.dll, avutil-61.dll y Qt6Multimedia.
 
 ## Límites y plataformas
 
-Windows 11 x64 es el sistema usado. Windows 10 y Linux **no se han ejecutado aquí**: falta una máquina/VM de cada sistema, prueba de audio/gráficos y empaquetado nativo Linux. La documentación de Qt anuncia Windows 10 1809+ en Qt 6.12, última rama con ese soporte; eso no sustituye probar TelePutin. Linux utiliza un flujo de claves por sesión deliberado; no se afirma integración con un llavero persistente. Si se usaba una ubicación Linux antigua, debe trasladarse manualmente la base de datos a la ruta XDG o definir TELEPUTIN_DATA_DIR.
+Windows 11 x64 es el sistema usado. Windows 10 y Linux **no se han ejecutado aquí**: falta una máquina/VM de cada sistema, prueba de audio/gráficos y empaquetado nativo Linux. La documentación de Qt anuncia Windows 10 1809+ en Qt 6.12, última rama con ese soporte; eso no sustituye probar LourihnaFilms. Linux utiliza un flujo de claves por sesión deliberado; no se afirma integración con un llavero persistente. Si se usaba una ubicación Linux antigua, debe trasladarse manualmente la base de datos a la ruta XDG o definir LOURIHNA_FILMS_DATA_DIR.
 
 El fallback web puede depender de códecs/consentimiento del proveedor. Si el vídeo está en un iframe ajeno que no permite inspección, el detector de inicio puede agotar el tiempo. El control de posición, volumen y atajos descrito pertenece al reproductor nativo; no se inventa progreso del web. No se garantiza la eliminación de anuncios del proveedor. No hay descarga permanente ni evasión de autenticación, restricciones o DRM.
 
