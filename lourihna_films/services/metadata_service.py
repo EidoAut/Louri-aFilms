@@ -11,9 +11,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from lourihna_films.core.public_http import PublicPageReader
     from lourihna_films.database.repositories import Repository
-    from lourihna_films.services.metadata_service import MetadataService
+    from lourihna_films.providers.public_metadata import PublicMetadata
 
 from lourihna_films.models.okru_identity import video_id_from_url
 
@@ -24,7 +23,7 @@ NEGATIVE_TTL = 300
 class MetadataService:
     """Enrich known video identities with cached and public metadata."""
 
-    def __init__(self, repository: Repository, reader: PublicPageReader | None) -> None:
+    def __init__(self, repository: Repository, reader: PublicMetadata) -> None:
         self.repo, self.reader = repository, reader
         self.notice = ""
 

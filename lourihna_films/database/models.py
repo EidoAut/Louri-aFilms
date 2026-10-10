@@ -8,11 +8,6 @@ Developed by EIDO Automation
 # ==========================================================================
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from lourihna_films.database.models import WatchHistory
-
 from sqlalchemy import Float, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 

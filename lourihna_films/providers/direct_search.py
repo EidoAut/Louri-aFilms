@@ -14,7 +14,6 @@ import httpx
 
 if TYPE_CHECKING:
     from lourihna_films.core.public_http import PublicPageReader
-    from lourihna_films.providers.direct_search import DirectPublicSearch
     from lourihna_films.providers.public_search import PublicSearch
     from lourihna_films.providers.web_search import BraveSearch
 

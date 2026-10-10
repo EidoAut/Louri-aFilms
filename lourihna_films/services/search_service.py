@@ -14,7 +14,6 @@ if TYPE_CHECKING:
     from lourihna_films.database.repositories import Repository
     from lourihna_films.providers.base import VideoProvider
     from lourihna_films.services.metadata_service import MetadataService
-    from lourihna_films.services.search_service import SearchService
 
 import hashlib
 

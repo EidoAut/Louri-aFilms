@@ -1,3 +1,10 @@
+# ==========================================================================
+"""lourihna_films.spec
+Collect the desktop runtime and licensed resources for a native platform build.
+
+Developed by EIDO Automation
+"""
+# ==========================================================================
 # Build on Windows with: .venv\Scripts\pyinstaller lourihna_films.spec
 from PyInstaller.utils.hooks import collect_dynamic_libs
 a = Analysis(['main.py'], pathex=[], binaries=collect_dynamic_libs('ctranslate2'),

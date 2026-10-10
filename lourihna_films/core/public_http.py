@@ -15,7 +15,6 @@ import httpx
 if TYPE_CHECKING:
     from urllib.robotparser import RobotFileParser
 
-    from lourihna_films.core.public_http import PublicPageReader
 
 import asyncio
 import re

@@ -8,11 +8,6 @@ Developed by EIDO Automation
 # ==========================================================================
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    pass
-
 METADATA_TTL = 6 * 60 * 60
 ARTWORK_MAX_BYTES = 8 * 1024 * 1024
 ARTWORK_BUDGET_BYTES = 256 * 1024 * 1024

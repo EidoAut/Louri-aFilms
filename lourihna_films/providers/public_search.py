@@ -11,15 +11,11 @@ Developed by EIDO Automation
 # ==========================================================================
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from html.parser import HTMLParser
+from typing import Any
+from urllib.parse import parse_qs, urlsplit
 
 import httpx
-
-if TYPE_CHECKING:
-    from lourihna_films.providers.public_search import PublicSearch
-
-from html.parser import HTMLParser
-from urllib.parse import parse_qs, urlsplit
 
 from lourihna_films.core.exceptions import ServiceError
 

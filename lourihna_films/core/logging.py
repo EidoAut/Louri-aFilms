@@ -8,14 +8,9 @@ Developed by EIDO Automation
 # ==========================================================================
 from __future__ import annotations
 
-from pathlib import Path
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    pass
-
 import logging
 from logging.handlers import RotatingFileHandler
+from pathlib import Path
 
 LOG_MAX_BYTES = 1_000_000
 LOG_BACKUP_COUNT = 3

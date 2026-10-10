@@ -15,7 +15,6 @@ import httpx
 
 if TYPE_CHECKING:
     from lourihna_films.database.repositories import Repository
-    from lourihna_films.services.translation_service import TranslationService
 
 import asyncio
 import hashlib

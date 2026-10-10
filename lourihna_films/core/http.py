@@ -8,14 +8,10 @@ Developed by EIDO Automation
 # ==========================================================================
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+import asyncio
+from typing import Any
 
 import httpx
-
-if TYPE_CHECKING:
-    pass
-
-import asyncio
 
 from lourihna_films.core.exceptions import ServiceError
 

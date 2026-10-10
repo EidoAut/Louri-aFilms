@@ -8,10 +8,7 @@ Developed by EIDO Automation
 # ==========================================================================
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
-
-if TYPE_CHECKING:
-    pass
+from typing import Any
 
 from lourihna_films.core.exceptions import ServiceError
 from lourihna_films.models.okru_identity import OKRuIdentity

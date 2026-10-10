@@ -8,17 +8,13 @@ Developed by EIDO Automation
 # ==========================================================================
 from __future__ import annotations
 
-from pathlib import Path
-from typing import TYPE_CHECKING, Any
-
-import httpx
-
-if TYPE_CHECKING:
-    from lourihna_films.services.artwork_cache import ArtworkCache
-
 import asyncio
 import hashlib
+from pathlib import Path
+from typing import Any
 from urllib.parse import urlsplit
+
+import httpx
 
 from lourihna_films.core.policy import (
     ARTWORK_BUDGET_BYTES,

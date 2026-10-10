@@ -8,13 +8,8 @@ Developed by EIDO Automation
 # ==========================================================================
 from __future__ import annotations
 
-from pathlib import Path
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    pass
-
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 

@@ -8,15 +8,11 @@ Developed by EIDO Automation
 # ==========================================================================
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
-
-import httpx
-
-if TYPE_CHECKING:
-    from lourihna_films.providers.web_search import BraveSearch
-
 import asyncio
 import time
+from typing import Any
+
+import httpx
 
 from lourihna_films.core.exceptions import ServiceError
 from lourihna_films.core.http import get_json

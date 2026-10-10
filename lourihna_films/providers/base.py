@@ -12,7 +12,6 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from lourihna_films.models.video import VideoResult
-    from lourihna_films.providers.base import VideoProvider
 from abc import ABC, abstractmethod
 
 from lourihna_films.models.video import VideoResult

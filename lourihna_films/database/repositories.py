@@ -14,7 +14,6 @@ if TYPE_CHECKING:
     from sqlalchemy.engine import Engine
 
     from lourihna_films.database.models import WatchHistory
-    from lourihna_films.database.repositories import Repository
 
 import json
 import math
@@ -203,7 +202,7 @@ class Repository:
                 )
             ]
 
-    def toggle_favorite(self, item: dict[str, Any]) -> bool:
+    def toggle_favorite(self, item: dict[str, Any]) -> None:
         """Add or remove the item by its stable content key."""
         with Session(self.engine) as s, s.begin():
             existing = s.scalar(

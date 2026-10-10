@@ -33,7 +33,7 @@ def normalize_title(value: object) -> str:
     )
 
 
-def public_image_url(value: object) -> str:
+def public_image_url(value: object) -> str | None:
     """Return an allowed public HTTP image URL or an empty string."""
     if not isinstance(value, str):
         return None
@@ -54,7 +54,7 @@ def public_image_url(value: object) -> str:
 
 def normalize_results(
     rows: list[dict[str, Any]], source: str = "OK.ru search"
-) -> list[dict[str, Any]]:
+) -> list[VideoResult]:
     """Validate, deduplicate and normalize external video candidates."""
     videos = {}
     for row in rows:

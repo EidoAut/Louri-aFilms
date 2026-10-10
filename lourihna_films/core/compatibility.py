@@ -8,17 +8,12 @@ Developed by EIDO Automation
 # ==========================================================================
 from __future__ import annotations
 
-from pathlib import Path
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    pass
-
 import os
 import shutil
 import sqlite3
 import tempfile
 from contextlib import closing
+from pathlib import Path
 
 LEGACY_DIRECTORY = "TelePutin"
 LEGACY_DATABASE = "teleputin.db"

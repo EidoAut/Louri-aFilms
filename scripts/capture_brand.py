@@ -30,7 +30,7 @@ def main() -> None:
     from lourihna_films.database.engine import create_database
     from lourihna_films.database.repositories import Repository
 
-    path = Path(os.environ["LOCALAPPDATA"]) / "LourihnaFilms/lourihna_films.db"
+    path = Path(os.environ["LOCALAPPDATA"]) / "lourihna_films/lourihna_films.db"
     with sqlite3.connect(path.as_uri() + "?mode=ro", uri=True) as connection:
         items = [
             json.loads(row[0])

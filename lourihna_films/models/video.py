@@ -8,12 +8,8 @@ Developed by EIDO Automation
 # ==========================================================================
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
-
-if TYPE_CHECKING:
-    from lourihna_films.models.video import VideoResult
-
 from datetime import datetime
+from typing import Any
 
 from pydantic import BaseModel, Field
 
