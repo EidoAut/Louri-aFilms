@@ -115,7 +115,9 @@ def main() -> int:
             startup.fail()
 
     def reveal():
-        """Resolve a protected or session-only credential without logging its value."""
+        """Show the prepared main window after both startup gates have passed."""
+        if "--smoke-test" in sys.argv:
+            print(f"SPLASH_READY_MS={startup.clock.elapsed()}", flush=True)
         window = resources["window"]
         controller = resources["controller"]
         window.show()
