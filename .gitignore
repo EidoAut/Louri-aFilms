@@ -20,3 +20,4 @@ artifacts/
 !.env.example
 docs/screenshots/*
 !docs/screenshots/splash.png
+!docs/screenshots/home.png

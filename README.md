@@ -2,6 +2,8 @@
 
 Aplicación de escritorio para descubrir cinema, organizar unha colección local e reproducir fontes públicas compatibles. Emprega Python, PySide6/QML, SQLite e Qt Multimedia/WebEngine. Non precisa unha conta propia da aplicación.
 
+![Pantalla principal de Louriña Films](docs/screenshots/home.png)
+
 **Descargas · v0.4.0 (versión previa)**
 
 | Windows · Intel/AMD de 64 bits | Linux · x86_64 | Código fonte |
