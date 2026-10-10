@@ -61,6 +61,14 @@ def main() -> None:
             startupinfo=startup,
         )
         assert result.returncode == 0, result.stderr.decode(errors="replace")
+        timings = [
+            int(line.split("=", 1)[1])
+            for line in result.stdout.decode(errors="replace").splitlines()
+            if line.startswith("SPLASH_READY_MS=")
+        ]
+        assert timings and timings[0] >= 3000, (
+            "Packaged welcome ended before three seconds"
+        )
         database = Path(directory) / "lourihna_films.db"
         assert database.is_file(), "Application did not create its isolated database"
         with closing(sqlite3.connect(database)) as connection:
