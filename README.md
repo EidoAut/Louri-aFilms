@@ -15,20 +15,20 @@ Aplicación de escritorio para descubrir cinema, organizar unha colección local
 
 ## Descargas e requisitos
 
-As distribucións publícanse en [GitHub Releases](https://github.com/EidoAut/Louri-aFilms/releases). O repositorio é privado: cómpre ter acceso para descargar. A versión 0.4.0 está en preparación; só se anexarán paquetes que superen as comprobacións. Consulta as notas da release para distinguir o sistema probado dos requisitos mínimos do framework.
+As distribucións publícanse en [GitHub Releases](https://github.com/EidoAut/Louri-aFilms/releases). O repositorio é privado: cómpre ter acceso para descargar. A versión 0.4.0 publícase como **versión previa**, con paquetes Windows e Linux que superaron as comprobacións descritas nas notas. Consulta as notas da release para distinguir o sistema probado dos requisitos mínimos do framework.
 
 ### Windows
 
 1. Abre Releases e escolle a versión máis recente dispoñible.
-2. Para equipos Intel/AMD de 64 bits, escolle o instalador `lourihna-films-0.4.0-windows-x86_64-setup.exe`, cando figure entre os anexos da versión 0.4.0.
+2. Para equipos Intel/AMD de 64 bits, escolle o instalador `lourihna-films-0.4.0-windows-x86_64-setup.exe` nos anexos da versión 0.4.0.
 3. Executa o instalador e segue os pasos. Instálase para o usuario actual, sen requirir permisos de administrador.
 4. Abre **Louriña Films** desde o menú Inicio ou o acceso directo e configura TMDB en **Axustes**, se queres utilizar ese catálogo.
 
-A compilación é x86_64, con Python 3.12 e Qt 6.12. O instalador require Windows 10 1809 ou posterior; a validación local realizouse no Windows deste equipo. Non hai unha compilación ARM nativa nin unha certificación independente de todas as versións de Windows. O instalador non está asinado cun certificado comercial.
+A compilación é x86_64, con Python 3.12 e Qt 6.12. O instalador require Windows 10 1809 ou posterior; a validación local realizouse en Windows 11. Non hai unha compilación ARM nativa nin unha certificación independente de todas as versións de Windows. O instalador non está asinado cun certificado comercial.
 
 ### Linux
 
-1. Abre Releases e busca `lourihna-films-0.4.0-linux-x86_64.tar.gz`, se está dispoñible.
+1. Abre Releases e busca `lourihna-films-0.4.0-linux-x86_64.tar.gz`.
 2. Escolle este paquete só para unha distribución x86_64 compatible coa base Ubuntu 24.04 e glibc 2.39 ou posterior. Outros escritorios e distribucións poden precisar bibliotecas adicionais.
 3. Descomprime o arquivo e entra no directorio `lourihna_films`.
 4. Executa `./lourihna_films` directamente ou `sh install.sh` para instalalo no teu directorio persoal e engadir a entrada do menú.

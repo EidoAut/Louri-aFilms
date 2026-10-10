@@ -24,3 +24,5 @@ Only `lourihna_films/core/compatibility.py` contains literal previous-brand iden
 ## Verification and distribution
 
 See the release notes for commands and results actually completed. Windows is packaged with PyInstaller plus Inno Setup. Linux uses the same onedir layout in a tar.gz with a user installer, avoiding an additional FUSE dependency. The workflow smoke-tests native playback, WebEngine lifecycle and SQLite before uploading artifacts. Linux desktop variation and signed Windows installer trust remain outside the CI smoke test.
+
+The existing session-only credential map remains owned by the secrets module; replacing this internal lifetime mechanism was intentionally deferred to preserve authentication behavior. CLI and pytest callbacks are not exposed as application APIs. The obsolete unused root logo was archived locally and replaced with a byte-for-byte copy of the current logo.
