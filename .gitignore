@@ -5,6 +5,14 @@ __pycache__/
 build/
 dist/
 *.db*
+*.sqlite*
+*.db3
+*.bak
+*.dmp
+*.pem
+*.key
+release/
+releases/
 *.log
 *.egg-info/
 artifacts/

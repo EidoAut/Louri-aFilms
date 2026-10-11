@@ -321,6 +321,10 @@ class Repository:
             if row:
                 item = json.loads(row.payload)
                 item["continue_watching"] = bool(enabled)
+                if enabled:
+                    if item.get("finished"):
+                        row.position = 0
+                    item["finished"] = False
                 row.payload = json.dumps(item)
 
     def continuing(self) -> list[dict[str, Any]]:
@@ -403,8 +407,15 @@ class Repository:
                 .values(expires=time.time() - 1)
             )
 
-    def clear_history(self) -> None:
-        """Delete local viewing history in a transaction."""
+    def clear_history(self, scope: str = "all") -> None:
+        """Delete selected history atomically, preserving favorites and the library."""
+        scopes = {
+            "all": (WatchHistory, SearchHistory, SearchCache),
+            "search": (SearchHistory, SearchCache),
+            "watch": (WatchHistory,),
+        }
+        if scope not in scopes:
+            raise ValueError("Unknown history scope")
         with Session(self.engine) as s, s.begin():
-            for model in (WatchHistory, SearchHistory, SearchCache):
+            for model in scopes[scope]:
                 s.execute(delete(model))

@@ -19,6 +19,7 @@ def main() -> None:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
     from PySide6.QtCore import Q_ARG, QMetaObject, QObject, Qt, QTimer, QUrl
     from PySide6.QtGui import QGuiApplication, QWindow
+    from PySide6.QtMultimedia import QAudioOutput, QMediaDevices
     from PySide6.QtQml import QQmlApplicationEngine
     from PySide6.QtQuickControls2 import QQuickStyle
     from PySide6.QtTest import QTest
@@ -99,6 +100,44 @@ def main() -> None:
             "Pause did not hold position",
         )
         check(native().property("playbackState") == 2, "Not paused")
+        output = window.findChild(QAudioOutput, "playbackAudioOutput")
+        check(output is not None, "Audio output missing")
+        if output is not None:
+            check(
+                output.device().id() == QMediaDevices.defaultAudioOutput().id(),
+                "Audio did not follow the default output",
+            )
+            outputs = QMediaDevices.audioOutputs()
+            print(f"AUDIO ROUTING: {len(outputs)} available outputs checked")
+            for device in outputs:
+                native().setProperty("selectedAudioId", bytes(device.id()).decode())
+                app.processEvents()
+                check(
+                    output.device().id() == device.id(), "Manual output routing failed"
+                )
+                check(
+                    native().property("playbackState") == 2,
+                    "Audio routing resumed video",
+                )
+            native().setProperty("selectedAudioId", "")
+            app.processEvents()
+            check(
+                output.device().id() == QMediaDevices.defaultAudioOutput().id(),
+                "Automatic audio routing was not restored",
+            )
+            check(
+                abs(output.volume() - backend.state["volume"]) < 0.001,
+                "Audio routing changed volume",
+            )
+            menu_button = window.findChild(QObject, "audioOutputButton")
+            QMetaObject.invokeMethod(menu_button, "clicked")
+            app.processEvents()
+            menu = window.findChild(QObject, "audioOutputMenu")
+            check(
+                menu is not None and menu.property("visible"), "Audio menu did not open"
+            )
+            if menu is not None:
+                QMetaObject.invokeMethod(menu, "close")
         QTest.keyClick(window, Qt.Key_Right)
         backend.setVolume(0.3, False)
         QTest.keyClick(window, Qt.Key_M)

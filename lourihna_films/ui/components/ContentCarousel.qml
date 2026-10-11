@@ -1,27 +1,85 @@
 import QtQuick
 import QtQuick.Controls
 import ".."
+
 Column {
     id: carousel
+    objectName: "catalogCarousel"
     property string title
     property string subtitle: ""
     property var items: []
-    property bool videos: items.length > 0 && !items.every(function(item) { return item.kind !== "video" || !!(item.catalog && item.catalog.poster); })
-    width: parent.width; spacing: Theme.gap
-    Row {
-        width: parent.width; spacing: Theme.smallGap
-        Column { width: parent.width - previous.implicitWidth - next.implicitWidth - Theme.smallGap * 2; spacing: Theme.smallGap
-            Text { font.family: Theme.font; width: parent.width; elide: Text.ElideRight; text: Strings.page(carousel.title); color: Theme.text; font.pixelSize: Theme.heading * 0.85; font.weight: Font.DemiBold }
-            Text { font.family: Theme.font; visible: !!carousel.subtitle; text: carousel.subtitle; color: Theme.muted; font.pixelSize: Theme.caption }
-        }
-        ActionButton { id: previous; text: Strings.t("Anterior", "Anterior"); onClicked: list.contentX = Math.max(0, list.contentX - list.width * 0.8) }
-        ActionButton { id: next; text: Strings.t("Siguiente", "Seguinte"); onClicked: list.contentX = Math.max(0, Math.min(list.contentWidth - list.width, list.contentX + list.width * 0.8)) }
+    property bool videos: true
+    width: parent.width
+    spacing: Theme.smallGap
+    Text {
+        width: parent.width
+        text: Strings.page(carousel.title)
+        font.family: Theme.font
+        font.pixelSize: Theme.lead + 3
+        font.weight: Font.DemiBold
+        color: Theme.text
+        elide: Text.ElideRight
     }
-    ListView {
-        id: list; width: parent.width; height: (carousel.videos ? Theme.videoHeight : Theme.cardHeight) + Theme.gap; clip: true
-        orientation: ListView.Horizontal; spacing: Theme.gap; model: carousel.items; boundsBehavior: Flickable.StopAtBounds
-        delegate: VideoCard { required property var modelData; entry: modelData; landscape: carousel.videos; y: Theme.smallGap }
-        ScrollBar.horizontal: ScrollBar { policy: ScrollBar.AsNeeded }
-        Behavior on contentX { NumberAnimation { duration: Theme.duration; easing.type: Easing.OutCubic } }
+    Text {
+        visible: !!carousel.subtitle
+        text: carousel.subtitle
+        font.family: Theme.font
+        font.pixelSize: Theme.caption
+        color: Theme.muted
+    }
+    Item {
+        width: parent.width
+        height: Theme.tileWidth(width) * 9 / 16 + Theme.body * 2.4
+        HoverHandler {
+            id: hovered
+        }
+        ListView {
+            id: list
+            objectName: "carouselList"
+            anchors.fill: parent
+            clip: true
+            orientation: ListView.Horizontal
+            spacing: Theme.cardGap
+            model: carousel.items
+            boundsBehavior: Flickable.StopAtBounds
+            cacheBuffer: width / 2
+            delegate: VideoCard {
+                required property var modelData
+                required property int index
+                carouselIndex: index
+                entry: modelData
+                width: Theme.tileWidth(list.width)
+            }
+            onMovementStarted: if (typeof cinema !== "undefined")
+                cinema.preview.dismiss()
+            WheelHandler {
+                acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+                onWheel: function (event) {
+                    if (Math.abs(event.angleDelta.x) > Math.abs(event.angleDelta.y) || event.modifiers & Qt.ShiftModifier) {
+                        list.contentX = Math.max(0, Math.min(list.contentWidth - list.width, list.contentX - (event.angleDelta.x || event.angleDelta.y)));
+                        event.accepted = true;
+                    } else
+                        event.accepted = false;
+                }
+            }
+        }
+        ActionButton {
+            anchors.left: parent.left
+            y: (parent.height - Theme.body * 2.4 - height) / 2
+            glyph: "back"
+            circular: true
+            Accessible.name: "Anterior"
+            visible: list.contentX > 1 && (hovered.hovered || activeFocus)
+            onClicked: list.contentX = Math.max(0, list.contentX - list.width * 0.85)
+        }
+        ActionButton {
+            anchors.right: parent.right
+            y: (parent.height - Theme.body * 2.4 - height) / 2
+            glyph: "forward"
+            circular: true
+            Accessible.name: "Seguinte"
+            visible: list.contentX < list.contentWidth - list.width - 1 && (hovered.hovered || activeFocus)
+            onClicked: list.contentX = Math.max(0, Math.min(list.contentWidth - list.width, list.contentX + list.width * 0.85))
+        }
     }
 }

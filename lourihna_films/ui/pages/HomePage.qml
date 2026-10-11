@@ -2,34 +2,86 @@ import QtQuick
 import QtQuick.Controls
 import ".."
 import "../components"
+
 ScrollView {
-    id: page; clip: true; contentWidth: availableWidth
+    id: page
+    objectName: "homePage"
+    clip: true
+    contentWidth: availableWidth
     property int spotlight: 0
-    property var featured: backend.uiState.rows.length ? backend.uiState.rows[0].items.slice(0, 5) : []
+    property var featured: backend.viewState.rows.length ? backend.viewState.rows[0].items.slice(0, 5) : []
+    readonly property string catalogPage: typeof cinema !== "undefined" ? cinema.browsePage : backend.viewState.page
+    Connections {
+        target: page.contentItem
+        function onContentYChanged() {
+            if (typeof cinema !== "undefined")
+                cinema.preview.dismiss();
+        }
+    }
     Column {
-        width: page.availableWidth; spacing: Theme.gap
-        FeaturedBanner { entry: page.featured.length ? page.featured[page.spotlight % page.featured.length] : ({}) }
-        Column {
-            x: Theme.margin; width: parent.width - Theme.margin * 2; spacing: Theme.gap; bottomPadding: Theme.margin
-            Item { width: parent.width; height: Theme.buttonHeight
-                Row { anchors.left: parent.left; anchors.verticalCenter: parent.verticalCenter; spacing: Theme.smallGap
-                    Repeater { model: page.featured.length; delegate: Rectangle { required property int index; width: page.spotlight === index ? 26 : 8; height: 4; radius: 2; color: page.spotlight === index ? Theme.text : Theme.muted
-                        MouseArea { anchors.fill: parent; anchors.margins: -8; cursorShape: Qt.PointingHandCursor; activeFocusOnTab: true; onClicked: page.spotlight = index; Keys.onReturnPressed: page.spotlight = index; Accessible.name: Strings.t("Destacado ", "Destacado ") + (index + 1) }
-                    } }
-                }
-                ActionButton { anchors.right: parent.right; text: Strings.t("Opciones", "Opcións"); Accessible.name: Strings.t("Opciones del catálogo", "Opcións do catálogo"); onClicked: catalogMenu.open()
-                    Menu { id: catalogMenu; MenuItem { text: Strings.t("Actualizar catálogo", "Actualizar catálogo"); onTriggered: backend.refreshCatalog() } }
+        x: Theme.gutter(page.width)
+        width: page.availableWidth - Theme.gutter(page.width) * 2
+        spacing: Theme.sectionGap
+        topPadding: Theme.smallGap
+        bottomPadding: Theme.margin
+        FeaturedBanner {
+            entry: page.featured.length ? page.featured[page.spotlight % page.featured.length] : ({})
+        }
+        ContentCarousel {
+            title: "Continuar vendo"
+            items: (backend.viewState.continuing || []).filter(function (x) {
+                return (x.position_ms || 0) > 0;
+            })
+            visible: items.length > 0 && page.catalogPage === "Home"
+        }
+        ContentCarousel {
+            title: "Pendentes"
+            items: (backend.viewState.continuing || []).filter(function (x) {
+                return !(x.position_ms > 0);
+            })
+            visible: items.length > 0
+        }
+        ContentCarousel {
+            title: "A miña lista"
+            items: backend.viewState.favorites
+            visible: items.length > 0 && page.catalogPage === "Home"
+        }
+        Row {
+            spacing: Theme.cardGap
+            visible: backend.viewState.busy && !backend.viewState.rows.length
+            Repeater {
+                model: 3
+                Rectangle {
+                    width: (page.availableWidth - Theme.gutter(page.width) * 2 - Theme.cardGap * 2) / 3
+                    height: width * 9 / 16
+                    color: Theme.card
+                    radius: Theme.radius
+                    opacity: 0.5
                 }
             }
-            ContentCarousel { title: Strings.t("Continuar viendo", "Seguir vendo"); subtitle: ""; items: (backend.uiState.continuing || []).filter(function(x) { return (x.position_ms || 0) > 0 }); visible: items.length > 0 && backend.uiState.page === "Home" }
-            ContentCarousel { title: Strings.t("Pendientes", "Pendentes"); items: (backend.uiState.continuing || []).filter(function(x) { return !(x.position_ms > 0) }); visible: items.length > 0 }
-            ContentCarousel { title: Strings.t("Mi lista", "A miña lista"); items: backend.uiState.favorites; visible: items.length > 0 && backend.uiState.page === "Home" }
-            Row { spacing: Theme.gap; visible: backend.uiState.busy && !backend.uiState.rows.length
-                Repeater { model: Theme.skeletonCount; Rectangle { width: Theme.cardWidth; height: Theme.posterHeight; color: Theme.card; radius: Theme.radius; opacity: 0.5 } }
+        }
+        Repeater {
+            model: backend.viewState.rows
+            delegate: ContentCarousel {
+                required property var modelData
+                title: modelData.title
+                items: modelData.items
+                visible: items.length > 0
             }
-            Repeater { model: backend.uiState.rows; delegate: ContentCarousel { required property var modelData; title: modelData.title; items: modelData.items } }
-            ContentCarousel { title: Strings.t("Vistos recientemente", "Vistos recentemente"); subtitle: ""; items: backend.uiState.history; visible: items.length > 0 && backend.uiState.page === "Home" }
-            Text { font.family: Theme.font; visible: !backend.uiState.rows.length && !backend.uiState.busy; width: parent.width; text: backend.uiState.tmdbAvailable ? Strings.t("No hay títulos disponibles. Prueba Explorar.", "Non hai títulos dispoñibles. Proba Explorar.") : Strings.t("Tu colección aparecerá aquí. Encuentra películas en Explorar.", "A túa colección aparecerá aquí. Atopa películas en Explorar."); color: Theme.muted; wrapMode: Text.WordWrap; font.pixelSize: Theme.body }
+        }
+        ContentCarousel {
+            title: "Vistos recentemente"
+            items: backend.viewState.history
+            visible: items.length > 0 && page.catalogPage === "Home"
+        }
+        Text {
+            visible: !backend.viewState.rows.length && !backend.viewState.busy
+            width: parent.width
+            text: "A túa colección aparecerá aquí. Atopa películas en Explorar."
+            color: Theme.muted
+            wrapMode: Text.WordWrap
+            font.family: Theme.font
+            font.pixelSize: Theme.lead
         }
     }
 }

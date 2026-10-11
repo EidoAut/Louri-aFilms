@@ -72,7 +72,7 @@ def main() -> int:
     app.setApplicationName("lourihna_films")
     app.setApplicationDisplayName("Louriña Films")
     app.setOrganizationName("LourihnaFilms")
-    app.setApplicationVersion("0.4.0")
+    app.setApplicationVersion("0.5.0")
     app.setWindowIcon(QIcon(str(ROOT / "assets" / "lourihna_films.ico")))
     startup = StartupCoordinator(prepare_database)
     splash_engine = QQmlApplicationEngine()

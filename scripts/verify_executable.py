@@ -1,6 +1,6 @@
 # ==========================================================================
 """verify_executable.py
-Smoke-test a Windows portable build without Python on PATH or personal data.
+Smoke-test a native portable build without Python on PATH or personal data.
 
 Developed by EIDO Automation
 """
@@ -80,6 +80,10 @@ def main() -> None:
                 "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
                 ("ui_language", "gl"),
             )
+            connection.execute(
+                "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
+                ("tmdb_token", "dpapi:a"),
+            )
             connection.commit()
         restarted = subprocess.run(
             [str(executable), "--smoke-test"],
@@ -102,7 +106,9 @@ def main() -> None:
             .read_text(encoding="utf-8")
             .strip()
         )
-        print("PASS: preferences survived packaged restart.")
+        print(
+            "PASS: preferences survived packaged restart with a malformed credential."
+        )
         print(
             "PASS: packaged startup, native buffered playback, browser lifecycle, SQLite integrity and clean shutdown."
         )

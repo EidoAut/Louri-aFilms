@@ -33,6 +33,7 @@ import time
 
 from PySide6.QtCore import Property, QObject, QUrl, Signal, Slot
 from PySide6.QtGui import QDesktopServices
+from PySide6.QtQml import QQmlPropertyMap
 
 from lourihna_films.core.config import credentials
 from lourihna_films.core.exceptions import ServiceError
@@ -98,6 +99,12 @@ class ApplicationController(QObject):
             "continuing": repository.continuing(),
         }
         self.catalog_pages = {}
+        # Stable property identity prevents unrelated UI updates from re-converting
+        # the entire catalog for every QML binding.
+        map_factory = getattr(QQmlPropertyMap, "create", QQmlPropertyMap)
+        self._view_state = map_factory(self)
+        for key, value in self._state.items():
+            self._view_state.insert(key, value)
         self.explore_active = []
         self.update(
             exploreItems=[], exploreMore=False, exploreNumber=0, exploreError=False
@@ -120,7 +127,7 @@ class ApplicationController(QObject):
         self.update(
             volume=volume,
             muted=saved.get("muted") == "true",
-            uiLanguage=saved.get("ui_language", "es"),
+            uiLanguage=saved.get("ui_language", "gl"),
             motion=saved.get("motion", "true") == "true",
             bufferedMedia={},
             playbackPhase="idle",
@@ -150,9 +157,24 @@ class ApplicationController(QObject):
         """Serialize the discovery snapshot only when its dedicated model changes."""
         return json.dumps(self._state.get("exploreItems", []))
 
+    @Property(QObject, constant=True)
+    def viewState(self) -> QObject:
+        """Expose field-level QML notifications while keeping snapshot APIs compatible."""
+        return self._view_state
+
     def update(self, **values: Any) -> None:
         """Merge explicit state changes and notify the QML bindings on the GUI thread."""
+        values = {
+            key: value
+            for key, value in values.items()
+            if key not in self._state or self._state[key] != value
+        }
+        if not values:
+            return
         self._state = {**self._state, **values}
+        for key, value in values.items():
+            if key != "exploreItems":
+                self._view_state.insert(key, value)
         self.changed.emit()
         if "exploreItems" in values:
             self.exploreItemsChanged.emit()
@@ -1083,10 +1105,18 @@ class ApplicationController(QObject):
         self.update(message="Claves guardadas eliminadas.")
 
     @Slot()
-    def clearHistory(self) -> None:
-        """Clear local viewing history and notify the interface."""
-        self.repo.clear_history()
-        self.update(history=[], continuing=[], recent=[], message="Historial borrado.")
+    @Slot(str)
+    def clearHistory(self, scope: str = "all") -> None:
+        """Clear selected history when idle and immediately update its visible state."""
+        if scope not in ("all", "search", "watch") or self._state["busy"]:
+            return
+        self.repo.clear_history(scope)
+        changes = {"message": "Historial borrado."}
+        if scope in ("all", "search"):
+            changes.update(recent=[], query="", results=[], more=False)
+        if scope in ("all", "watch"):
+            changes.update(history=[], continuing=[])
+        self.update(**changes)
 
     @Slot(str)
     def notify(self, message: str) -> None:

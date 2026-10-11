@@ -16,6 +16,18 @@ Item {
     property bool resumed: false
     property bool completed: false
     property bool playAfterLoad: true
+    property string selectedAudioId: ""
+    readonly property var audioDevices: audioDevicesMonitor.audioOutputs
+    readonly property int selectedAudioIndex: {
+        for (var i = 0; i < audioDevices.length; ++i)
+            if (String(audioDevices[i].id) === selectedAudioId) return i;
+        return -1;
+    }
+    onAudioDevicesChanged: {
+        // A disconnected manual output falls back to the current system default.
+        if (selectedAudioId && selectedAudioIndex < 0) selectedAudioId = "";
+    }
+    MediaDevices { id: audioDevicesMonitor }
     function changeQuality(index) { flush(); playAfterLoad = media.playbackState === MediaPlayer.PlayingState; revealControls(); backend.selectQuality(index) }
     function qualityLabel(source) {
         var names = { mobile: "Móvil", lowest: "Mínima", low: "Baja", sd: "SD", hd: "HD", full: "Full HD", quad: "QHD", ultra: "UHD" };
@@ -51,10 +63,16 @@ Item {
     }
     MediaPlayer {
         id: media; source: root.mediaUrl; videoOutput: picture
-        audioOutput: AudioOutput { id: sound; volume: backend.uiState.volume === undefined ? 0.8 : backend.uiState.volume; muted: backend.uiState.muted || false }
+        audioOutput: AudioOutput {
+            id: sound
+            objectName: "playbackAudioOutput"
+            device: root.selectedAudioIndex >= 0 ? root.audioDevices[root.selectedAudioIndex] : audioDevicesMonitor.defaultAudioOutput
+            volume: backend.viewState.volume === undefined ? 0.8 : backend.viewState.volume
+            muted: backend.viewState.muted || false
+        }
         onSourceChanged: {
             root.failure = ""; root.resumed = false; root.completed = false
-            root.pendingResume = root.lastPosition || backend.uiState.player.position_ms || 0
+            root.pendingResume = root.lastPosition || backend.viewState.player.position_ms || 0
             startup.restart(); stall.stop(); pauseAfterLoad.stop()
         }
         onMediaStatusChanged: {
@@ -79,7 +97,7 @@ Item {
     Timer { id: startup; interval: Theme.mediaStartupMs; onTriggered: root.fail(-1) }
     Timer { id: stall; interval: Theme.mediaStallMs; onTriggered: { if (media.playbackState === MediaPlayer.PlayingState) root.fail(-2) } }
     Timer { interval: Theme.progressSaveMs; repeat: true; running: media.playbackState === MediaPlayer.PlayingState; onTriggered: root.flush() }
-    Timer { id: hideControls; interval: Theme.controlHideMs; onTriggered: { if (media.playbackState === MediaPlayer.PlayingState && !controlsHover.hovered && !controls.activeFocus) root.controlsVisible = false } }
+    Timer { id: hideControls; interval: Theme.controlHideMs; onTriggered: { if (media.playbackState === MediaPlayer.PlayingState && !controlsHover.hovered && !controls.activeFocus && !audioMenu.visible) root.controlsVisible = false } }
     LoadingIndicator { anchors.centerIn: parent; running: !root.failure && (startup.running || media.mediaStatus === MediaPlayer.StalledMedia); visible: running }
     Rectangle {
         id: controls; anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom
@@ -96,10 +114,39 @@ Item {
             Text { font.family: Theme.font; font.pixelSize: Theme.body; text: root.clockText(media.duration); color: Theme.text }
             ActionButton { glyph: sound.muted ? "mute" : "volume"; Accessible.name: Strings.t("Silenciar", "Silenciar"); onClicked: backend.setVolume(sound.volume, !sound.muted) }
             Styled.Slider { Layout.preferredWidth: root.width < Theme.compactWidth ? 80 : 120; from: 0; to: 1; value: sound.volume; Accessible.name: Strings.t("Volumen", "Volume"); onMoved: backend.setVolume(value, false) }
+            ActionButton {
+                text: "Audio"
+                objectName: "audioOutputButton"
+                Accessible.name: "Saída de audio"
+                onClicked: { root.revealControls(); audioMenu.open(); }
+                Menu {
+                    id: audioMenu
+                    objectName: "audioOutputMenu"
+                    width: Math.min(340, root.width - Theme.gap * 2)
+                    MenuItem {
+                        text: "Automática · " + audioDevicesMonitor.defaultAudioOutput.description
+                        checkable: true
+                        checked: !root.selectedAudioId
+                        onTriggered: root.selectedAudioId = ""
+                    }
+                    Instantiator {
+                        model: root.audioDevices
+                        delegate: MenuItem {
+                            required property var modelData
+                            text: modelData.description
+                            checkable: true
+                            checked: root.selectedAudioId === String(modelData.id)
+                            onTriggered: root.selectedAudioId = String(modelData.id)
+                        }
+                        onObjectAdded: function(index, object) { audioMenu.insertItem(index + 1, object); }
+                        onObjectRemoved: function(index, object) { audioMenu.removeItem(object); }
+                    }
+                }
+            }
             Styled.ComboBox {
                 id: quality; Accessible.name: Strings.t("Calidad", "Calidade")
-                model: (backend.uiState.bufferedMedia || {}).sources || []
-                textRole: "quality"; currentIndex: (backend.uiState.bufferedMedia || {}).index || 0
+                model: (backend.viewState.bufferedMedia || {}).sources || []
+                textRole: "quality"; currentIndex: (backend.viewState.bufferedMedia || {}).index || 0
                 displayText: Strings.t("Calidad: ", "Calidade: ") + (model.length ? root.qualityLabel(model[currentIndex] || {}) : "Original") + (picture.sourceRect.height > 0 ? " · " + Math.round(picture.sourceRect.height) + "p" : "")
                 Layout.preferredWidth: 160; visible: model.length > 1
                 delegate: ItemDelegate { required property var modelData; width: quality.width; text: root.qualityLabel(modelData) }
@@ -108,12 +155,12 @@ Item {
             ActionButton { glyph: "fullscreen"; Accessible.name: Strings.t("Pantalla completa", "Pantalla completa"); onClicked: root.fullscreenRequested() }
         }
     }
-    Shortcut { sequence: "Space"; enabled: root.visible && !root.editing; onActivated: root.toggle() }
-    Shortcut { sequence: "Left"; enabled: root.visible && !root.editing; onActivated: root.seek(-Theme.seekStepMs) }
-    Shortcut { sequence: "Right"; enabled: root.visible && !root.editing; onActivated: root.seek(Theme.seekStepMs) }
-    Shortcut { sequence: "Up"; enabled: root.visible && !root.editing; onActivated: root.changeVolume(Theme.volumeStep) }
-    Shortcut { sequence: "Down"; enabled: root.visible && !root.editing; onActivated: root.changeVolume(-Theme.volumeStep) }
-    Shortcut { sequence: "M"; enabled: root.visible && !root.editing; onActivated: { root.revealControls(); backend.setVolume(sound.volume, !sound.muted) } }
-    Component.onCompleted: { sessionId = backend.uiState.playbackSession || 0; sessionKey = backend.uiState.player.key || ""; pendingResume = backend.uiState.player.position_ms || 0; startup.restart(); media.play(); revealControls() }
+    Shortcut { sequence: "Space"; enabled: root.visible && !root.editing && !audioMenu.visible; onActivated: root.toggle() }
+    Shortcut { sequence: "Left"; enabled: root.visible && !root.editing && !audioMenu.visible; onActivated: root.seek(-Theme.seekStepMs) }
+    Shortcut { sequence: "Right"; enabled: root.visible && !root.editing && !audioMenu.visible; onActivated: root.seek(Theme.seekStepMs) }
+    Shortcut { sequence: "Up"; enabled: root.visible && !root.editing && !audioMenu.visible; onActivated: root.changeVolume(Theme.volumeStep) }
+    Shortcut { sequence: "Down"; enabled: root.visible && !root.editing && !audioMenu.visible; onActivated: root.changeVolume(-Theme.volumeStep) }
+    Shortcut { sequence: "M"; enabled: root.visible && !root.editing && !audioMenu.visible; onActivated: { root.revealControls(); backend.setVolume(sound.volume, !sound.muted) } }
+    Component.onCompleted: { sessionId = backend.viewState.playbackSession || 0; sessionKey = backend.viewState.player.key || ""; pendingResume = backend.viewState.player.position_ms || 0; startup.restart(); media.play(); revealControls() }
     Component.onDestruction: media.stop()
 }

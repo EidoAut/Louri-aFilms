@@ -1,5 +1,6 @@
 pragma Singleton
 import QtQuick
+
 QtObject {
     property bool motion: true
     readonly property color background: "#0B1012"
@@ -24,7 +25,9 @@ QtObject {
     readonly property int buttonRadius: 6
     readonly property int duration: motion ? 180 : 0
     readonly property int pageDuration: motion ? 320 : 0
-    readonly property FontLoader interfaceFont: FontLoader { source: "../assets/fonts/Inter.ttf" }
+    readonly property FontLoader interfaceFont: FontLoader {
+        source: "../assets/fonts/Inter.ttf"
+    }
     readonly property string font: interfaceFont.status === FontLoader.Ready ? interfaceFont.name : "sans-serif"
     readonly property color accent: "#27B99A"
     readonly property color selection: "#287CC1"
@@ -46,20 +49,21 @@ QtObject {
     readonly property int lead: 17
     readonly property int heading: 28
     readonly property int display: 52
+    readonly property int compactDisplay: 34
     readonly property int titlebarHeight: 30
-    readonly property int navHeight: 88
+    readonly property int navHeight: 68
     readonly property int buttonHeight: 44
-    readonly property int cardWidth: 202
+    readonly property int cardWidth: 280
     readonly property int qualitySettleMs: 150
-    readonly property int cardHeight: 368
-    readonly property int posterHeight: 286
-    readonly property int videoWidth: 302
-    readonly property int videoHeight: 252
-    readonly property int thumbnailHeight: 170
+    readonly property int cardHeight: 188
+    readonly property int posterHeight: 158
+    readonly property int videoWidth: 280
+    readonly property int videoHeight: 188
+    readonly property int thumbnailHeight: 158
     readonly property real heroPortraitWidthRatio: 0.46
-    readonly property int heroMin: 320
-    readonly property int heroMax: 400
-    readonly property real heroRatio: 0.32
+    readonly property int heroMin: 350
+    readonly property int heroMax: 660
+    readonly property real heroRatio: 0.47
     readonly property int heroArtworkMinWidth: 960
     readonly property int heroArtworkMinHeight: 480
     readonly property real heroArtworkMinAspect: 1.4
@@ -76,7 +80,7 @@ QtObject {
     readonly property real scrimStop: 0.65
     readonly property int windowWidth: 1440
     readonly property int windowHeight: 900
-    readonly property int minimumWidth: 960
+    readonly property int minimumWidth: 640
     readonly property int minimumHeight: 640
     readonly property int compactWidth: 1150
     readonly property int textMaxWidth: 650
@@ -84,4 +88,22 @@ QtObject {
     readonly property int skeletonCount: 6
     readonly property int episodeImageWidth: 170
     readonly property int episodeImageHeight: 96
+    readonly property int sectionGap: 32
+    readonly property int cardGap: 8
+    readonly property int heroRadius: 16
+    readonly property int previewDelay: 420
+    readonly property int previewCloseDelay: 180
+    readonly property int previewWidth: 410
+    readonly property int previewPadding: 18
+    readonly property int detailMaxWidth: 1100
+    readonly property int narrowWidth: 820
+    readonly property color dim: "#B80B1012"
+    readonly property color dropShadow: "#660B1012"
+    function gutter(width) {
+        return width < narrowWidth ? 20 : margin;
+    }
+    function tileWidth(width) {
+        var columns = width >= 1600 ? 5.5 : width >= 1050 ? 4.3 : width >= 780 ? 3.3 : 2.25;
+        return Math.floor((width - (columns - 1) * cardGap) / columns);
+    }
 }

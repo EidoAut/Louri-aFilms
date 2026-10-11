@@ -356,6 +356,10 @@ def main() -> None:
                             return found
                     return None
 
+                card = find_visual(window.contentItem(), "catalogCard")
+                if card:
+                    QMetaObject.invokeMethod(card, "openPreview")
+                    app.processEvents()
                 button = find_visual(window.contentItem(), "favoriteButton")
                 if not button:
                     errors.append("Favorite action missing")
@@ -364,19 +368,18 @@ def main() -> None:
                         QMetaObject.invokeMethod(button, "clicked")
                         app.processEvents()
                         persisted = controller.repo.favorites()
-                        expected_label = (
-                            "Quitar"
-                            if expected_saved
-                            else ("Engadir" if "--galician" in sys.argv else "Añadir")
-                        )
+                        expected_glyph = "check" if expected_saved else "plus"
                         if (
                             bool(persisted) != expected_saved
-                            or button.property("text") != expected_label
+                            or button.property("glyph") != expected_glyph
                         ):
                             errors.append(
                                 "Favorite action or persisted state did not update"
                             )
                     print("FAVORITES add/remove persisted", flush=True)
+                    QMetaObject.invokeMethod(
+                        window.findChild(QObject, "hoverPreview"), "dismiss"
+                    )
             if previous == "explore":
                 grid = window.findChild(QObject, "exploreGrid")
                 calls = []

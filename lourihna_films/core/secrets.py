@@ -77,4 +77,7 @@ def reveal(value: str) -> str:
         return ""
     if not WINDOWS:
         return ""
-    return transform(base64.b64decode(value[6:]), True).decode()
+    try:
+        return transform(base64.b64decode(value[6:], validate=True), True).decode()
+    except ValueError as exc:
+        raise RuntimeError("The saved credential is invalid. Enter it again.") from exc

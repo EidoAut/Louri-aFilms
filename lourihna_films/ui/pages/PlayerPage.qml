@@ -12,9 +12,9 @@ Item {
     property int previousVisibility: Window.Windowed
     property string failure: ""
     property bool webStarted: false
-    readonly property string playerUrl: backend.uiState.player.embed_url || "about:blank"
-    readonly property bool bufferedActive: !!(backend.uiState.bufferedMedia && backend.uiState.bufferedMedia.url)
-    readonly property bool webActive: !bufferedActive && backend.uiState.playbackPhase === "web" && !failure
+    readonly property string playerUrl: backend.viewState.player.embed_url || "about:blank"
+    readonly property bool bufferedActive: !!(backend.viewState.bufferedMedia && backend.viewState.bufferedMedia.url)
+    readonly property bool webActive: !bufferedActive && backend.viewState.playbackPhase === "web" && !failure
     property bool headerVisible: true
     function toggleFullscreen() {
         if (!fullscreen) { previousVisibility = Window.window.visibility; fullscreen = true; Window.window.showFullScreen() }
@@ -22,14 +22,14 @@ Item {
     }
     function leave() { if (native.item) native.item.stop(); if (fullscreen) toggleFullscreen(); backend.backFromPlayer() }
     function retry() { failure = ""; webStarted = false; backend.playBuffered() }
-    onWebActiveChanged: { if (webActive) { webStarted = false; pageLoad.restart() } else { pageLoad.stop(); webStart.stop(); webStall.stop() } }
+    onWebActiveChanged: { if (webActive) { webStarted = false; playbackMonitor.lastTime = -1; pageLoad.restart() } else { pageLoad.stop(); webStart.stop(); webStall.stop() } }
     onPlayerUrlChanged: { failure = ""; webStarted = false }
     Connections { target: player.Window.window; function onClosing(close) { if (native.item) native.item.stop() } }
     Rectangle { anchors.fill: parent; color: Theme.background }
     Loader {
         id: native; anchors.fill: parent; active: player.bufferedActive
         sourceComponent: BufferedPlayer {
-            mediaUrl: backend.uiState.bufferedMedia ? backend.uiState.bufferedMedia.url || "" : ""
+            mediaUrl: backend.viewState.bufferedMedia ? backend.viewState.bufferedMedia.url || "" : ""
             onFullscreenRequested: player.toggleFullscreen()
             
             onControlsVisibleChanged: player.headerVisible = controlsVisible
@@ -58,14 +58,17 @@ Item {
     Timer { id: webStart; interval: Theme.mediaStartupMs; onTriggered: player.failure = Strings.t("No se ha podido iniciar el vídeo. Prueba otra fuente.", "Non se puido iniciar o vídeo. Proba outra fonte.") }
     Timer { id: webStall; interval: Theme.mediaStallMs; onTriggered: player.failure = Strings.t("Se ha interrumpido el vídeo. Prueba de nuevo.", "Interrompeuse o vídeo. Proba de novo.") }
     Timer {
+        id: playbackMonitor
         interval: 1000; repeat: true; running: player.webActive && !!browser.item
         property real lastTime: -1
-        onTriggered: { var session = backend.uiState.playbackSession; browser.item.runJavaScript("JSON.stringify(Array.from(document.querySelectorAll('video')).map(v=>({time:v.currentTime,paused:v.paused,error:!!v.error})))", function(raw) {
-            if (!player.webActive || session !== backend.uiState.playbackSession) return
+        onTriggered: { var session = backend.viewState.playbackSession; browser.item.runJavaScript("JSON.stringify(Array.from(document.querySelectorAll('video')).map(v=>({time:v.currentTime,paused:v.paused,error:!!v.error})))", function(raw) {
+            if (!player.webActive || session !== backend.viewState.playbackSession) return
             var videos = []; try { videos = JSON.parse(raw) } catch (e) {}
             for (var i = 0; i < videos.length; i++) {
                 if (videos[i].error) { player.failure = Strings.t("No se pudo reproducir este vídeo.", "Non se puido reproducir este vídeo."); return }
-                if (videos[i].time > lastTime && videos[i].time > 0) { player.webStarted = true; webStart.stop(); webStall.restart(); lastTime = videos[i].time }
+                if (videos[i].time > lastTime && videos[i].time > 0) { player.webStarted = true; webStart.stop(); webStall.restart() }
+                // Compare consecutive samples so rewinding does not look like a stall.
+                lastTime = videos[i].time
                 if (videos[i].paused) webStall.stop()
             }
         }) }
@@ -76,12 +79,12 @@ Item {
         RowLayout {
             anchors.fill: parent; anchors.margins: Theme.gap
             ActionButton { glyph: "back"; Accessible.name: Strings.t("Volver", "Volver"); onClicked: player.leave() }
-            Text { font.family: Theme.font; Layout.fillWidth: true; text: (backend.uiState.player.catalog || {}).title || backend.uiState.player.title || ""; color: Theme.text; font.pixelSize: Theme.lead; elide: Text.ElideRight; textFormat: Text.PlainText }
+            Text { font.family: Theme.font; Layout.fillWidth: true; text: (backend.viewState.player.catalog || {}).title || backend.viewState.player.title || ""; color: Theme.text; font.pixelSize: Theme.lead; elide: Text.ElideRight; textFormat: Text.PlainText }
             ActionButton { text: Strings.t("Opciones", "Opcións"); onClicked: actions.open()
                 Menu { id: actions
                     MenuItem { text: Strings.t("Añadir a pendientes", "Engadir a pendentes"); onTriggered: backend.keepWatching(true) }
                     MenuItem { text: Strings.t("Marcar como terminada", "Marcar como rematada"); onTriggered: { if (native.item) native.item.stop(); backend.finishPlayback() } }
-                    MenuItem { text: Strings.t("Página original", "Páxina orixinal"); onTriggered: backend.openExternal(backend.uiState.player.original_url || "") }
+                    MenuItem { text: Strings.t("Página original", "Páxina orixinal"); onTriggered: backend.openExternal(backend.viewState.player.original_url || "") }
                     MenuItem { text: Strings.t("Pantalla completa", "Pantalla completa"); onTriggered: player.toggleFullscreen() }
                 }
             }
@@ -89,14 +92,14 @@ Item {
     }
     Column {
         anchors.centerIn: parent; width: Math.min(parent.width - Theme.margin * 2, Theme.textMaxWidth); spacing: Theme.gap
-        visible: !!player.failure || backend.uiState.playbackPhase === "error"
+        visible: !!player.failure || backend.viewState.playbackPhase === "error"
         Text { font.family: Theme.font; width: parent.width; text: player.failure || Strings.t("Este vídeo no está disponible. Prueba otra fuente.", "Este vídeo non está dispoñible. Proba outra fonte."); color: Theme.text; font.pixelSize: Theme.heading; wrapMode: Text.WordWrap; horizontalAlignment: Text.AlignHCenter }
         Row { anchors.horizontalCenter: parent.horizontalCenter; spacing: Theme.gap
             ActionButton { text: Strings.t("Reintentar", "Tentar de novo"); primary: true; onClicked: player.retry() }
             ActionButton { text: Strings.t("Volver", "Volver"); onClicked: player.leave() }
         }
     }
-    LoadingIndicator { anchors.centerIn: parent; running: backend.uiState.playbackPhase === "loading" || (player.webActive && !player.webStarted); visible: running && !player.failure }
+    LoadingIndicator { anchors.centerIn: parent; running: backend.viewState.playbackPhase === "loading" || (player.webActive && !player.webStarted); visible: running && !player.failure }
     Shortcut { sequence: "Escape"; onActivated: { if (player.fullscreen) player.toggleFullscreen(); else player.leave() } }
     Component.onDestruction: { if (player.fullscreen) Window.window.visibility = player.previousVisibility }
 }

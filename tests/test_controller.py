@@ -55,6 +55,44 @@ def controller(tmp_path, monkeypatch):
     engine.dispose()
 
 
+def test_qml_state_updates_only_dependent_bindings(controller):
+    """Busy/playback notifications must not re-evaluate catalog model bindings."""
+    from PySide6.QtCore import QUrl
+    from PySide6.QtQml import QQmlComponent, QQmlEngine
+
+    backend, app = controller
+    engine = QQmlEngine()
+    engine.rootContext().setContextProperty("backend", backend)
+    component = QQmlComponent(engine)
+    component.setData(
+        b"""import QtQml
+        QtObject {
+            property int rowChanges: 0
+            property int busyChanges: 0
+            property var rows: backend.viewState.rows
+            property bool busy: backend.viewState.busy
+            onRowsChanged: rowChanges++
+            onBusyChanged: busyChanges++
+        }""",
+        QUrl(),
+    )
+    observer = component.create()
+    assert observer is not None, component.errors()
+    backend.update(rows=[{"title": "Catalog", "items": [{"key": "movie:1"}]}])
+    count = observer.property("rowChanges")
+    backend.update(busy=True, playbackPhase="loading")
+    app.processEvents()
+    assert observer.property("busy") is True
+    assert observer.property("rowChanges") == count
+    backend.update(rows=[{"title": "Series", "items": []}])
+    assert observer.property("rowChanges") == count + 1
+    backend.update(rows=[{"title": "Series", "items": []}], busy=True)
+    assert observer.property("rowChanges") == count + 1
+    assert observer.property("busyChanges") == 1
+    observer.deleteLater()
+    app.processEvents()
+
+
 def test_direct_url_completes_via_qt_signal(controller):
     controller, app = controller
     controller.search("https://ok.ru/video/123", "OK.ru")
@@ -670,3 +708,26 @@ def test_large_explore_payload_is_not_copied_into_general_ui_state(controller):
     assert "exploreItems" not in controller.uiState
     assert json.loads(controller.exploreItemsJson) == entries
     assert notifications == [True]
+
+
+def test_startup_with_malformed_saved_credentials(tmp_path, monkeypatch):
+    from lourihna_films.core import secrets
+
+    for name in ("TMDB_TOKEN", "TMDB_API_KEY", "BRAVE_SEARCH_API_KEY"):
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setattr(secrets, "WINDOWS", True)
+    _app = QCoreApplication.instance() or QCoreApplication([])
+    engine = create_database(tmp_path / "invalid-credentials.db")
+    repo = Repository(engine)
+    repo.save_settings({"tmdb_token": "dpapi:a", "ui_language": "gl"})
+    backend = None
+    try:
+        backend = ApplicationController(repo)
+        assert not backend.state["tmdbAvailable"]
+        assert backend.state["uiLanguage"] == "gl"
+        backend.forgetCredentials()
+        assert repo.settings()["tmdb_token"] == ""
+    finally:
+        if backend is not None:
+            backend.shutdown()
+        engine.dispose()

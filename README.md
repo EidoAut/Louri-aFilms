@@ -4,21 +4,32 @@ Aplicación de escritorio para descubrir cinema, organizar unha colección local
 
 ![Pantalla principal de Louriña Films](docs/screenshots/home.png)
 
-**Descargas · v0.4.0 (versión previa)**
+**Versión 0.5.0 · preparada para publicación**
 
-| Windows · Intel/AMD de 64 bits | Linux · x86_64 | Código fonte |
-| --- | --- | --- |
-| [Descargar instalador .exe](https://github.com/EidoAut/Louri-aFilms/releases/download/v0.4.0/lourihna-films-0.4.0-windows-x86_64-setup.exe) | [Descargar paquete .tar.gz](https://github.com/EidoAut/Louri-aFilms/releases/download/v0.4.0/lourihna-films-0.4.0-linux-x86_64.tar.gz) | [Descargar fontes .zip](https://github.com/EidoAut/Louri-aFilms/releases/download/v0.4.0/lourihna-films-0.4.0-source.zip) |
+Esta versión incorpora a nova interface cinematográfica, melloras de fluidez,
+selección de saída de audio e borrado selectivo dos historiais.
+Os paquetes prepáranse sen contas, claves, bases de datos nin datos persoais.
+A publicación en GitHub é un paso separado: consulta [Releases](https://github.com/EidoAut/Louri-aFilms/releases)
+para ver as versións que xa están publicadas.
 
-[Notas da versión](https://github.com/EidoAut/Louri-aFilms/releases/tag/v0.4.0) · [Sumas SHA-256](https://github.com/EidoAut/Louri-aFilms/releases/download/v0.4.0/SHA256SUMS.txt) · [Requisitos e instalación](#descargas-e-requisitos)
+| Plataforma | Paquete |
+| --- | --- |
+| Windows x86_64 · portable | `lourihna-films-0.5.0-windows-x86_64-portable.zip` |
+| Linux x86_64 · portable | `lourihna-films-0.5.0-linux-x86_64.tar.gz` |
+| Código fonte | `lourihna-films-0.5.0-source.zip` |
+| Verificación de integridade | `SHA256SUMS.txt` |
 
-As descargas son públicas e non precisan iniciar sesión en GitHub.
+[Notas da versión](docs/RELEASE-0.5.0.md) · [Requisitos e instalación](#descargas-e-requisitos)
 
 ## Funcións
 
 - Busca de vídeos públicos en OK.ru e fontes alternativas de Internet Archive. A dispoñibilidade depende de cada provedor.
 - Catálogos opcionais de películas e series con metadatos de TMDB. Unha ficha de TMDB **non garante** que exista un vídeo reproducible.
 - Favoritos, historial, progreso, categorías locais, importación de ligazóns e exploración con carga progresiva.
+- Portada panorámica, filas horizontais, tarxetas ampliadas e fichas superpostas con episodios dispoñibles.
+- Actualizacións de interface por campo e caché de imaxes para reducir tiróns.
+- Saída de audio automática ou manual no reprodutor nativo, incluído HDMI cando o sistema o detecta.
+- Borrado separado de buscas e reproducións, con confirmación e conservación da colección.
 - Reprodutor integrado, formatos e calidades que a fonte expoña publicamente, e reprodutor oficial cando corresponda. Non elimina restricións de acceso nin DRM.
 - Tradución local opcional das sinopses mediante modelos descargados cando fan falta. A primeira tradución require conexión e pode tardar.
 - Interface en galego ou castelán e benvida co logotipo durante polo menos tres segundos.
@@ -27,20 +38,24 @@ As descargas son públicas e non precisan iniciar sesión en GitHub.
 
 ## Descargas e requisitos
 
-As distribucións publícanse en [GitHub Releases](https://github.com/EidoAut/Louri-aFilms/releases). A versión 0.4.0 publícase como **versión previa**, con paquetes Windows e Linux que superaron as comprobacións descritas nas notas. Consulta as notas da release para distinguir o sistema probado dos requisitos mínimos do framework.
+Consulta as notas de cada versión para coñecer o sistema de compilación e as comprobacións realizadas.
 
 ### Windows
 
-1. Abre Releases e escolle a versión máis recente dispoñible.
-2. Para equipos Intel/AMD de 64 bits, escolle o instalador `lourihna-films-0.4.0-windows-x86_64-setup.exe` nos anexos da versión 0.4.0.
-3. Executa o instalador e segue os pasos. Instálase para o usuario actual, sen requirir permisos de administrador.
-4. Abre **Louriña Films** desde o menú Inicio ou o acceso directo e configura TMDB en **Axustes**, se queres utilizar ese catálogo.
+1. Descarga `lourihna-films-0.5.0-windows-x86_64-portable.zip` cando estea publicado.
+2. Extrae **todo** o arquivo nun cartafol; conserva `_internal` xunto ao executable.
+3. Abre `lourihna_films/lourihna_films.exe`. Non precisa instalación nin permisos de administrador.
+4. Abre **☰ → Axustes** para configurar TMDB se queres utilizar ese catálogo.
 
-A compilación é x86_64, con Python 3.12 e Qt 6.12. O instalador require Windows 10 1809 ou posterior; a validación local realizouse en Windows 11. Non hai unha compilación ARM nativa nin unha certificación independente de todas as versións de Windows. O instalador non está asinado cun certificado comercial.
+Compilación x86_64 con Python 3.12; validación local en Windows 11. Non hai unha
+compilación ARM nativa nin certificación de todas as versións de Windows. O
+portable non está asinado cun certificado comercial. GitHub Actions tamén pode
+xerar o instalador por usuario `lourihna-films-0.5.0-windows-x86_64-setup.exe`
+con Inno Setup; non se debe anunciar como dispoñible ata que se xere e publique.
 
 ### Linux
 
-1. Abre Releases e busca `lourihna-films-0.4.0-linux-x86_64.tar.gz`.
+1. Abre Releases e busca `lourihna-films-0.5.0-linux-x86_64.tar.gz`.
 2. Escolle este paquete só para unha distribución x86_64 compatible coa base Ubuntu 24.04 e glibc 2.39 ou posterior. Outros escritorios e distribucións poden precisar bibliotecas adicionais.
 3. Descomprime o arquivo e entra no directorio `lourihna_films`.
 4. Executa `./lourihna_films` directamente ou `sh install.sh` para instalalo no teu directorio persoal e engadir a entrada do menú.
@@ -49,6 +64,20 @@ A compilación é x86_64, con Python 3.12 e Qt 6.12. O instalador require Window
 Utilízase un arquivo portable con instalador por usuario en lugar de AppImage para conservar a estrutura de Qt/WebEngine sen introducir unha dependencia de FUSE. Non hai paquete ARM nin garantía para distribucións con glibc anterior. O workflow comproba o arranque con Xvfb; esa comprobación non substitúe unha proba interactiva en todos os escritorios.
 
 Os anexos automáticos **Source code (zip)** e **Source code (tar.gz)** son código fonte, **non instaladores**. Se unha plataforma non ten un paquete publicado, podes construílo seguindo as instrucións de desenvolvemento; non descargues un paquete doutra arquitectura.
+
+## Uso diario
+
+- **Tarxetas:** agarda brevemente co cursor para amplialas. Tab enfoca os controis,
+  Espazo ou frecha abaixo abre a previsualización, Intro abre a ficha e Escape péchaa.
+- **Filas:** usa as frechas ou o desprazamento horizontal; Maiús + roda move a fila.
+- **Audio HDMI:** conecta o televisor e abre **Audio** no reprodutor nativo.
+  **Automática** segue a saída predeterminada do sistema; tamén podes escoller un
+  dispositivo concreto. O reprodutor web usa a saída de Chromium/sistema.
+- **Historiais:** abre **☰ → Eliminar historiais…** ou os botóns de Busca/A miña lista.
+  Podes borrar buscas, reproducións ou ambas. O borrado de reproducións elimina
+  tamén o progreso e Continuar vendo; conserva favoritos, colección e axustes.
+- As previsualizacións son imaxes estáticas cando non hai un tráiler verificado.
+  Os textos do catálogo dependen do idioma e dos datos que ofreza o provedor.
 
 ## TMDB
 
@@ -97,14 +126,33 @@ python -m ruff format --check .
 python -m pytest -q
 python scripts/verify_ui.py --compact --stress-explore
 python scripts/verify_controls.py
+python scripts/package_release.py --check-source
 python -m PyInstaller --noconfirm lourihna_films.spec
+python scripts/package_release.py --runtime dist/lourihna_films
+python scripts/package_release.py --source
 ```
 
 Windows: executa `ISCC packaging/windows.iss` con Inno Setup despois de PyInstaller. O instalador queda en `dist/packages/`. Comproba a aplicación con `python scripts/verify_executable.py dist/lourihna_films/lourihna_films.exe`.
 
-Linux: constrúe nun Linux x86_64 compatible, executa a mesma verificación sobre `dist/lourihna_films/lourihna_films` e segue o paso de empaquetado do workflow para incluír `install.sh`. Non se xeran binarios Linux desde Windows por compilación cruzada.
+Linux: constrúe nun Linux x86_64 compatible, executa a mesma verificación sobre `dist/lourihna_films/lourihna_films` e usa `scripts/package_release.py --runtime dist/lourihna_films`, que inclúe `install.sh` e metadatos da compilación. Non se xeran binarios Linux desde Windows por compilación cruzada.
 
 [GitHub Actions](https://github.com/EidoAut/Louri-aFilms/actions) constrúe e verifica cada plataforma con permisos de lectura. A publicación da release realízase despois de revisar os resultados; os workflows non precisan claves persoais de TMDB.
+
+## Preparar o repositorio
+
+O repositorio só debe conter código, probas, documentación e recursos da marca.
+Non engadas `.env`, bases SQLite, historiais, rexistros, cachés, modelos de tradución,
+`.venv`, `build/`, `dist/` nin paquetes binarios. `.gitignore` e o exportador de fontes
+comproban estes límites. Os binarios van nos anexos de Releases, non nos commits.
+
+A base de datos créase automaticamente, baleira, na primeira apertura dun perfil
+novo. A migración conserva o perfil existente dos usuarios que actualizan.
+Para unha proba totalmente limpa, define `LOURIHNA_FILMS_DATA_DIR` cun cartafol
+novo: non é preciso borrar nin distribuír unha base de datos.
+
+Cada portable inclúe `BUILD-INFO.json` coas versións usadas. Verifica os anexos con
+`Get-FileHash -Algorithm SHA256 <ficheiro>` en PowerShell ou `sha256sum -c SHA256SUMS.txt`
+en Linux. Le [o proceso de publicación](docs/RELEASING.md) antes de crear a release.
 
 ## Licenza e créditos
 
