@@ -180,6 +180,9 @@ def main() -> None:
         check(repo.history()[0]["position_ms"] >= 8000, "Exit position not saved")
         app.quit()
 
+    # Software rendering and decoder startup under Xvfb need more settling time
+    # than a native Windows desktop; retain every assertion and the hard timeout.
+    timing_scale = 3 if sys.platform.startswith("linux") else 1
     for delay, callback in (
         (1800, pause),
         (2300, seek),
@@ -187,8 +190,8 @@ def main() -> None:
         (3300, restore),
         (3800, close),
     ):
-        QTimer.singleShot(delay, callback)
-    QTimer.singleShot(10000, app.quit)
+        QTimer.singleShot(delay * timing_scale, callback)
+    QTimer.singleShot(10000 * timing_scale, app.quit)
     app.exec()
     check(finished, "Control verification timed out")
     backend.shutdown()
