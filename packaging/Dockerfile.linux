@@ -2,6 +2,7 @@ FROM ubuntu:20.04@sha256:8feb4d8ca5354def3d8fce243717141ce31e2c428701f6682bd2faf
 
 ENV DEBIAN_FRONTEND=noninteractive PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PYTHONDONTWRITEBYTECODE=1 QTWEBENGINE_CHROMIUM_FLAGS=--disable-gpu
+RUN printf 'Acquire::Retries "5";\nAcquire::http::Timeout "30";\nAcquire::https::Timeout "30";\n' > /etc/apt/apt.conf.d/80-build-retries
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 # A dated archive prevents runner or apt updates from changing the toolchain.
 RUN printf 'deb http://snapshot.ubuntu.com/ubuntu/20261001T000000Z focal main universe\ndeb http://snapshot.ubuntu.com/ubuntu/20261001T000000Z focal-updates main universe\ndeb http://snapshot.ubuntu.com/ubuntu/20261001T000000Z focal-security main universe\n' > /etc/apt/sources.list \
