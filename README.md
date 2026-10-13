@@ -213,8 +213,10 @@ non só o executable, e rexeita GLIBC > 2.31, arquitecturas incorrectas,
 ligazóns externas e dependencias non resoltas. `BUILD-INFO.json`, `ELF-AUDIT.json`,
 `SYSTEM-PACKAGES.txt` e `PYTHON-REQUIREMENTS.txt` conservan a trazabilidade.
 A data real da compilación impide prometer arquivos idénticos byte por byte.
-O bootstrap de certificados APT usa o repositorio oficial de Focal; o resto das
-bibliotecas nativas usa o snapshot fixado.
+O bootstrap de certificados e curl usa o repositorio oficial de Focal. As demais
+versións e hashes proceden dos índices asinados do snapshot. Os ficheiros exactos
+descárganse do espello oficial cando están dispoñibles, verificando o SHA-256 do
+snapshot; se non están dispoñibles, úsase o propio arquivo histórico.
 
 Para repetir a proba nun sistema concreto (cambia 20.04 por 22.04 ou 24.04):
 

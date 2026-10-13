@@ -3,17 +3,18 @@ FROM ubuntu:20.04@sha256:8feb4d8ca5354def3d8fce243717141ce31e2c428701f6682bd2faf
 ENV DEBIAN_FRONTEND=noninteractive PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PYTHONDONTWRITEBYTECODE=1 QTWEBENGINE_CHROMIUM_FLAGS=--disable-gpu
 RUN printf 'Acquire::Retries "5";\nAcquire::http::Timeout "30";\nAcquire::https::Timeout "30";\n' > /etc/apt/apt.conf.d/80-build-retries
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl
+COPY scripts/install-linux-build-deps.sh /tmp/install-linux-build-deps.sh
 # A dated archive prevents runner or apt updates from changing the toolchain.
 RUN printf 'deb http://snapshot.ubuntu.com/ubuntu/20261001T000000Z focal main universe\ndeb http://snapshot.ubuntu.com/ubuntu/20261001T000000Z focal-updates main universe\ndeb http://snapshot.ubuntu.com/ubuntu/20261001T000000Z focal-security main universe\n' > /etc/apt/sources.list \
     && apt-get -o Acquire::Check-Valid-Until=false update \
-    && apt-get install -y --no-install-recommends build-essential ca-certificates curl \
+    && bash /tmp/install-linux-build-deps.sh build-essential ca-certificates curl \
        xz-utils libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev \
        libffi-dev liblzma-dev uuid-dev binutils file git xvfb xauth \
        libglib2.0-0 libdbus-1-3 libfontconfig1 libfreetype6 libxfixes3 libcups2 \
        libgtk-3-0 libegl1 libgl1 libopengl0 libnss3 libasound2 libpulse0 \
        libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 \
-       libxcb-shape0 libxcb-xinerama0 libxcomposite1 libxdamage1 libxrandr2 \
+       libxcb-shape0 libxcb-xinerama0 libxcb-randr0 libxcomposite1 libxdamage1 libxrandr2 \
        libxtst6 libxshmfence1 libgbm1 libdrm2 libxkbfile1 \
        desktop-file-utils openbox pulseaudio ffmpeg \
     && rm -rf /var/lib/apt/lists/*
@@ -27,11 +28,6 @@ COPY packaging/requirements-linux.lock /tmp/requirements-linux.lock
 RUN python3.12 -m pip install --require-hashes --only-binary=:all: -r /tmp/requirements-linux.lock \
     && python3.12 -m pip check \
     && dpkg-query -W > /opt/build-system-packages.txt
-RUN apt-get -o Acquire::Check-Valid-Until=false -o Acquire::Retries=3 \
-    -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update \
-    && apt-get install -y --no-install-recommends libxcb-randr0 \
-    && dpkg-query -W > /opt/build-system-packages.txt \
-    && rm -rf /var/lib/apt/lists/*
 # Qt 6.8 dynamically loads OpenSSL 3, which Focal does not provide.
 # Build it on Focal too; never borrow libssl from a newer Ubuntu release.
 RUN curl -fsSLo /tmp/openssl.tar.gz https://github.com/openssl/openssl/releases/download/openssl-3.5.9/openssl-3.5.9.tar.gz \

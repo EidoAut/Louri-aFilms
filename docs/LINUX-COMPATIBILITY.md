@@ -17,8 +17,13 @@ GLIBC 2.34. Replacing Python alone would therefore not fix Ubuntu 20.04.
   Python 3.10 would require changing the declared >=3.12 contract and packaging
   APIs (tomllib, hashlib.file_digest); retaining 3.12 avoids unrelated migration.
 - Use Ubuntu 20.04 by immutable digest and APT snapshot 20261001T000000Z.
-  Initial CA-certificate bootstrap uses official Focal repositories; its actual
-  version is recorded. This is a repeatable build environment, not a claim of
+  Initial CA-certificate/curl bootstrap uses official Focal repositories; actual
+  versions are recorded. Package versions and SHA-256 values come from signed
+  snapshot indices. The download helper first fetches those exact bytes from
+  Ubuntu's live pool, verifies the snapshot SHA-256, and falls back to the snapshot
+  URL when unavailable. It never resolves against live package indices after
+  bootstrap. This avoids serial snapshot download delays without changing the
+  selected versions. This is a repeatable build environment, not a claim of
   bit-identical output: BUILD-INFO records the actual build time.
 - Pin Linux wheels and hashes separately from the pre-existing Windows lock.
   PySide6/Shiboken/Essentials/Addons 6.8.3 use manylinux_2_28 x86_64 wheels.
