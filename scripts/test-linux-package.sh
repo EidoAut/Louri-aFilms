@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
+# xwininfo must decode the accented application title in minimal containers.
+export LANG=C.UTF-8 LC_ALL=C.UTF-8
 package=/input/LourinhaFilms-linux-x86_64-glibc231.tar.gz
 cd /input
 sha256sum -c "$(basename "$package").sha256"
