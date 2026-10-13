@@ -10,9 +10,12 @@ Developed by EIDO Automation
 from __future__ import annotations
 
 import argparse
+import datetime
+import gzip
 import hashlib
 import importlib.metadata
 import json
+import os
 import platform
 import shutil
 import subprocess
@@ -123,8 +126,26 @@ def package_runtime(runtime: Path, output: Path) -> Path:
     for name in ("README.md", "LICENSE"):
         shutil.copy2(ROOT / name, runtime / name)
     if system == "linux":
-        shutil.copy2(ROOT / "packaging/install-linux.sh", runtime / "install.sh")
-        (runtime / "install.sh").chmod(0o755)
+        from scripts.verify_linux_elf import audit
+
+        if platform.libc_ver() != ("glibc", "2.31"):
+            raise ValueError("Linux releases must be built in the Ubuntu 20.04 image")
+        report = audit(runtime)
+        if not report["passed"]:
+            raise ValueError("Linux ELF audit failed: " + "\n".join(report["errors"]))
+        (runtime / "ELF-AUDIT.json").write_text(
+            json.dumps(report, indent=2) + "\n", encoding="utf-8"
+        )
+        for script in ("install", "uninstall"):
+            shutil.copy2(
+                ROOT / f"packaging/{script}-linux.sh", runtime / f"{script}.sh"
+            )
+            (runtime / f"{script}.sh").chmod(0o755)
+        shutil.copy2("/opt/build-system-packages.txt", runtime / "SYSTEM-PACKAGES.txt")
+        shutil.copy2(
+            ROOT / "packaging/requirements-linux.lock",
+            runtime / "PYTHON-REQUIREMENTS.txt",
+        )
     metadata = {
         "version": version(),
         "system": system,
@@ -144,7 +165,24 @@ def package_runtime(runtime: Path, output: Path) -> Path:
             )
         },
         "profile_included": False,
+        "built_at_utc": datetime.datetime.now(datetime.UTC).isoformat(),
+        "source_commit": os.environ.get("SOURCE_COMMIT")
+        or subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
+        ).strip(),
+        "source_dirty": os.environ.get("SOURCE_DIRTY", "unknown"),
     }
+    if system == "linux":
+        metadata.update(
+            build_distribution=platform.freedesktop_os_release(),
+            openssl_qt=subprocess.check_output(
+                ["/opt/openssl/bin/openssl", "version"], text=True
+            ).strip(),
+            glibc_minimum="2.31",
+            glibc_max_required=report["glibc_max_required"],
+            compatibility_audit_passed=report["passed"],
+            elf_count=report["elf_count"],
+        )
     (runtime / "BUILD-INFO.json").write_text(
         json.dumps(metadata, indent=2) + "\n", encoding="utf-8"
     )
@@ -161,9 +199,26 @@ def package_runtime(runtime: Path, output: Path) -> Path:
                         "lourihna_films/" + source.relative_to(runtime).as_posix(),
                     )
     else:
-        destination = output / f"{stem}.tar.gz"
-        with tarfile.open(destination, "w:gz", compresslevel=6) as archive:
-            archive.add(runtime, arcname="lourihna_films")
+        destination = output / "LourinhaFilms-linux-x86_64-glibc231.tar.gz"
+        epoch = int(os.environ["SOURCE_DATE_EPOCH"])
+
+        def normalize(info: tarfile.TarInfo) -> tarfile.TarInfo:
+            """Remove host ownership and timestamps from archive headers."""
+            info.uid = info.gid = 0
+            info.uname = info.gname = "root"
+            info.mtime = epoch
+            return info
+
+        with destination.open("wb") as target:
+            with gzip.GzipFile(
+                filename="", fileobj=target, mode="wb", mtime=epoch
+            ) as zipped:
+                with tarfile.open(fileobj=zipped, mode="w") as archive:
+                    archive.add(runtime, arcname="lourinha-films", filter=normalize)
+        digest = hashlib.sha256(destination.read_bytes()).hexdigest()
+        destination.with_name(destination.name + ".sha256").write_text(
+            f"{digest}  {destination.name}\n", encoding="ascii"
+        )
     return destination
 
 

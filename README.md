@@ -4,10 +4,10 @@ Aplicación de escritorio para descubrir cinema, organizar unha colección local
 
 ![Pantalla principal de Louriña Films](docs/screenshots/home.png)
 
-**Versión 0.5.0 · preparada para publicación**
+**Versión 0.5.1 · candidata de compatibilidade Linux**
 
-Esta versión incorpora a nova interface cinematográfica, melloras de fluidez,
-selección de saída de audio e borrado selectivo dos historiais.
+Esta revisión conserva a interface e as funcións da versión 0.5.0 e incorpora
+unha compilación Linux baseada en GLIBC 2.31.
 Os paquetes prepáranse sen contas, claves, bases de datos nin datos persoais.
 A publicación en GitHub é un paso separado: consulta [Releases](https://github.com/EidoAut/Louri-aFilms/releases)
 para ver as versións que xa están publicadas.
@@ -15,7 +15,7 @@ para ver as versións que xa están publicadas.
 | Plataforma | Paquete |
 | --- | --- |
 | Windows x86_64 · portable | `lourihna-films-0.5.0-windows-x86_64-portable.zip` |
-| Linux x86_64 · portable | `lourihna-films-0.5.0-linux-x86_64.tar.gz` |
+| Linux x86_64 · portable | `LourinhaFilms-linux-x86_64-glibc231.tar.gz` |
 | Código fonte | `lourihna-films-0.5.0-source.zip` |
 | Verificación de integridade | `SHA256SUMS.txt` |
 
@@ -55,13 +55,71 @@ con Inno Setup; non se debe anunciar como dispoñible ata que se xere e publique
 
 ### Linux
 
-1. Abre Releases e busca `lourihna-films-0.5.0-linux-x86_64.tar.gz`.
-2. Escolle este paquete só para unha distribución x86_64 compatible coa base Ubuntu 24.04 e glibc 2.39 ou posterior. Outros escritorios e distribucións poden precisar bibliotecas adicionais.
-3. Descomprime o arquivo e entra no directorio `lourihna_films`.
-4. Executa `./lourihna_films` directamente ou `sh install.sh` para instalalo no teu directorio persoal e engadir a entrada do menú.
-5. Configura TMDB en **Axustes** de maneira opcional.
+O novo paquete ten como base **Ubuntu 20.04 x86_64 e GLIBC 2.31**. Ubuntu
+22.04 e 24.04 forman parte da matriz automática de probas. Consulta os resultados
+da compilación e as notas da versión: a base de compilación non certifica todos
+os escritorios, controladores gráficos nin servizos de vídeo.
 
-Utilízase un arquivo portable con instalador por usuario en lugar de AppImage para conservar a estrutura de Qt/WebEngine sen introducir unha dependencia de FUSE. Non hai paquete ARM nin garantía para distribucións con glibc anterior. O workflow comproba o arranque con Xvfb; esa comprobación non substitúe unha proba interactiva en todos os escritorios.
+Descarga `LourinhaFilms-linux-x86_64-glibc231.tar.gz` e o seu ficheiro `.sha256`
+da mesma compilación. Non precisas instalar Python nin dependencias Python:
+
+```sh
+sha256sum -c LourinhaFilms-linux-x86_64-glibc231.tar.gz.sha256
+tar -xzf LourinhaFilms-linux-x86_64-glibc231.tar.gz
+cd lourinha-films
+./install.sh
+```
+
+Abre **Louriña Films** no menú multimedia. Desde un terminal:
+
+```sh
+"$HOME/.local/opt/lourinha-films/lourihna_films"
+```
+
+O instalador non precisa `sudo`. Instala en `~/.local/opt/lourinha-films` e crea
+`~/.local/share/applications/lourinha-films.desktop`, co logotipo incluído.
+Para actualizar, extrae o paquete novo noutro cartafol e executa `./install.sh`:
+substitúe o runtime completo e conserva a colección e os axustes.
+Para desinstalar:
+
+```sh
+"$HOME/.local/opt/lourinha-films/uninstall.sh"
+```
+
+Os datos persoais quedan en `~/.local/share/lourihna_films` ou no destino
+configurado mediante XDG/LOURIHNA_FILMS_DATA_DIR. O executable conserva o nome
+histórico `lourihna_films` para evitar cambios de identidade ou de perfil.
+O instalador antigo usaba `~/.local/opt/lourihna-films`; non se elimina esa
+instalación automaticamente. Se segue aparecendo unha entrada antiga no menú,
+retíraa só despois de comprobar a nova instalación.
+
+Precísase un escritorio X11 ou XWayland, controladores OpenGL/Mesa e un servizo
+de audio PulseAudio ou PipeWire compatible. As bibliotecas do sistema pódense
+instalar en Ubuntu 20.04/22.04 con:
+
+```sh
+sudo apt-get install libglib2.0-0 libdbus-1-3 libfontconfig1 libfreetype6 \
+  libxfixes3 libcups2 libgtk-3-0 libegl1 libgl1 libopengl0 libnss3 libasound2 \
+  libpulse0 libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 \
+  libxcb-shape0 libxcb-randr0 libxcb-xinerama0 libxcomposite1 libxdamage1 libxrandr2 \
+  libxtst6 libxshmfence1 libgbm1 libdrm2 libxkbfile1
+```
+
+En Ubuntu 24.04 os nomes correspondentes son `libglib2.0-0t64`, `libcups2t64`,
+`libgtk-3-0t64` e `libasound2t64`. Só a instalación de bibliotecas do sistema
+precisa permisos de administrador; a aplicación non. FFmpeg para reprodución
+vai incluído co runtime de Qt; non se precisa a orde `ffmpeg` no equipo final.
+
+Se aparece `GLIBC_2.38 not found`, comproba que descargaches o novo paquete
+`glibc231`, non o antigo 0.5.0. **Non substitúas GLIBC manualmente**.
+Un erro do complemento `xcb` adoita indicar bibliotecas gráficas ausentes:
+instala as dependencias anteriores. Para diagnosticar, executa o programa nun
+terminal con `QT_DEBUG_PLUGINS=1`. Non execúte-lo como root nin desactives o
+sandbox de Chromium. Unha proba con Xvfb non verifica altofalantes físicos,
+HDMI, aceleración GPU nin a dispoñibilidade de vídeos externos.
+
+Non hai paquete ARM nin soporte para musl/Alpine. O arquivo portable conserva
+`_internal` completo e evita a dependencia de FUSE dunha AppImage.
 
 Os anexos automáticos **Source code (zip)** e **Source code (tar.gz)** son código fonte, **non instaladores**. Se unha plataforma non ten un paquete publicado, podes construílo seguindo as instrucións de desenvolvemento; non descargues un paquete doutra arquitectura.
 
@@ -108,7 +166,7 @@ python -m pip install -e ".[dev]"
 python main.py
 ```
 
-En Linux tamén se precisa `libpulse0` para Qt Multimedia. Instala as bibliotecas de Qt indicadas no [workflow](.github/workflows/build.yml). A reprodución require un escritorio gráfico e as bibliotecas multimedia do paquete. As descargas e os servizos externos precisan conexión á Internet.
+En Linux tamén se precisa `libpulse0` para Qt Multimedia. Instala as bibliotecas de Qt indicadas na sección Linux anterior. A reprodución require un escritorio gráfico e as bibliotecas multimedia do paquete. As descargas e os servizos externos precisan conexión á Internet.
 
 ## Datos e migración
 
@@ -134,7 +192,40 @@ python scripts/package_release.py --source
 
 Windows: executa `ISCC packaging/windows.iss` con Inno Setup despois de PyInstaller. O instalador queda en `dist/packages/`. Comproba a aplicación con `python scripts/verify_executable.py dist/lourihna_films/lourihna_films.exe`.
 
-Linux: constrúe nun Linux x86_64 compatible, executa a mesma verificación sobre `dist/lourihna_films/lourihna_films` e usa `scripts/package_release.py --runtime dist/lourihna_films`, que inclúe `install.sh` e metadatos da compilación. Non se xeran binarios Linux desde Windows por compilación cruzada.
+Linux: desde un clon Git, con Docker en modo Linux, executa:
+
+```sh
+bash scripts/build-linux.sh
+```
+
+En Windows pódese executar desde WSL con Docker dispoñible. A imaxe fixa Ubuntu
+20.04 por digest, un arquivo APT datado, Python 3.12.15 compilado nese sistema e
+wheels con versións e SHA-256 fixados en `packaging/requirements-linux.lock`.
+Consérvase Python 3.12 porque xa é o contrato do proxecto e o empaquetador usa
+`tomllib` e outras API posteriores a 3.10; non fai falta rebaixalo para GLIBC 2.31.
+PySide6 6.8.3 conserva Qt/QML, WebEngine e Multimedia. PyInstaller 6.16.0 xera
+un directorio autónomo. OpenSSL 3.5.9 compílase tamén sobre Focal para que Qt
+poida cargar carátulas e conexións HTTPS. Non se incorporan bibliotecas do runner.
+
+Os resultados quedan en `dist/linux-glibc231/`. A auditoría analiza todos os ELF,
+non só o executable, e rexeita GLIBC > 2.31, arquitecturas incorrectas,
+ligazóns externas e dependencias non resoltas. `BUILD-INFO.json`, `ELF-AUDIT.json`,
+`SYSTEM-PACKAGES.txt` e `PYTHON-REQUIREMENTS.txt` conservan a trazabilidade.
+A data real da compilación impide prometer arquivos idénticos byte por byte.
+O bootstrap de certificados APT usa o repositorio oficial de Focal; o resto das
+bibliotecas nativas usa o snapshot fixado.
+
+Para repetir a proba nun sistema concreto (cambia 20.04 por 22.04 ou 24.04):
+
+```sh
+docker build --build-arg UBUNTU_VERSION=20.04 -f packaging/Dockerfile.linux-test -t lourinha-test .
+docker run --rm --shm-size=512m -v "$PWD/dist/linux-glibc231:/input:ro" lourinha-test
+```
+
+Estas probas instalan como usuario sen privilexios, lanzan Qt con Xvfb,
+comproban vídeo local, a entrada do menú, actualización e desinstalación.
+As integracións externas e o audio físico deben verificarse por separado antes
+dunha publicación estable. Consulta [a auditoría Linux](docs/LINUX-COMPATIBILITY.md).
 
 [GitHub Actions](https://github.com/EidoAut/Louri-aFilms/actions) constrúe e verifica cada plataforma con permisos de lectura. A publicación da release realízase despois de revisar os resultados; os workflows non precisan claves persoais de TMDB.
 

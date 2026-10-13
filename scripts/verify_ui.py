@@ -60,7 +60,11 @@ def main() -> None:
         ):
             errors.append(message)
 
-    qInstallMessageHandler(message)
+    # Qt 6.8 can log from the QML loader while a Python property update owns
+    # the GIL. Linux CI captures native stderr to avoid a callback deadlock.
+    native_logging = "--native-qt-logging" in sys.argv
+    if not native_logging:
+        qInstallMessageHandler(message)
     QtWebEngineQuick.initialize()
     QQuickStyle.setStyle("Basic")
     app = QGuiApplication(sys.argv)
@@ -521,7 +525,13 @@ def main() -> None:
     del engine
     database.dispose()
     temp.cleanup()
-    print(f"QML errors: {len(errors)}", errors, flush=True)
+    print(
+        "Native QML diagnostics captured externally; UI checks:"
+        if native_logging
+        else f"QML errors: {len(errors)}",
+        errors,
+        flush=True,
+    )
     sys.exit(bool(errors))
 
 

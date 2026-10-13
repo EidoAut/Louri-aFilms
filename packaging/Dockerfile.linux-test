@@ -1,0 +1,18 @@
+ARG UBUNTU_VERSION=20.04
+FROM ubuntu:${UBUNTU_VERSION}
+ENV DEBIAN_FRONTEND=noninteractive QTWEBENGINE_CHROMIUM_FLAGS=--disable-gpu
+# Test hosts deliberately use their own native OS libraries, not the builder.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates python3 xvfb xauth libglib2.0-0 libdbus-1-3 libfontconfig1 \
+    libfreetype6 libxfixes3 libcups2 libgtk-3-0 libegl1 libgl1 libopengl0 libnss3 \
+    libasound2-dev libpulse0 libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 \
+    libxcb-keysyms1 libxcb-shape0 libxcb-xinerama0 libxcomposite1 libxdamage1 \
+    libxrandr2 libxtst6 libxshmfence1 libgbm1 libdrm2 libxkbfile1 \
+    desktop-file-utils dbus-x11 x11-utils openbox pulseaudio ffmpeg \
+    && rm -rf /var/lib/apt/lists/* && useradd --create-home tester
+RUN apt-get update && apt-get install -y --no-install-recommends libxcb-randr0 \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /test
+COPY scripts/verify_executable.py scripts/video_fixture.py scripts/test-linux-package.sh /test/
+USER tester
+ENTRYPOINT ["bash", "/test/test-linux-package.sh"]

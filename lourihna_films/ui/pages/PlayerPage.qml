@@ -20,14 +20,14 @@ Item {
         if (!fullscreen) { previousVisibility = Window.window.visibility; fullscreen = true; Window.window.showFullScreen() }
         else { fullscreen = false; Window.window.visibility = previousVisibility }
     }
-    function leave() { if (native.item) native.item.stop(); if (fullscreen) toggleFullscreen(); backend.backFromPlayer() }
+    function leave() { if (bufferedLoader.item) bufferedLoader.item.stop(); if (fullscreen) toggleFullscreen(); backend.backFromPlayer() }
     function retry() { failure = ""; webStarted = false; backend.playBuffered() }
     onWebActiveChanged: { if (webActive) { webStarted = false; playbackMonitor.lastTime = -1; pageLoad.restart() } else { pageLoad.stop(); webStart.stop(); webStall.stop() } }
     onPlayerUrlChanged: { failure = ""; webStarted = false }
-    Connections { target: player.Window.window; function onClosing(close) { if (native.item) native.item.stop() } }
+    Connections { target: player.Window.window; function onClosing(close) { if (bufferedLoader.item) bufferedLoader.item.stop() } }
     Rectangle { anchors.fill: parent; color: Theme.background }
     Loader {
-        id: native; anchors.fill: parent; active: player.bufferedActive
+        id: bufferedLoader; anchors.fill: parent; active: player.bufferedActive
         sourceComponent: BufferedPlayer {
             mediaUrl: backend.viewState.bufferedMedia ? backend.viewState.bufferedMedia.url || "" : ""
             onFullscreenRequested: player.toggleFullscreen()
@@ -83,7 +83,7 @@ Item {
             ActionButton { text: Strings.t("Opciones", "Opcións"); onClicked: actions.open()
                 Menu { id: actions
                     MenuItem { text: Strings.t("Añadir a pendientes", "Engadir a pendentes"); onTriggered: backend.keepWatching(true) }
-                    MenuItem { text: Strings.t("Marcar como terminada", "Marcar como rematada"); onTriggered: { if (native.item) native.item.stop(); backend.finishPlayback() } }
+                    MenuItem { text: Strings.t("Marcar como terminada", "Marcar como rematada"); onTriggered: { if (bufferedLoader.item) bufferedLoader.item.stop(); backend.finishPlayback() } }
                     MenuItem { text: Strings.t("Página original", "Páxina orixinal"); onTriggered: backend.openExternal(backend.viewState.player.original_url || "") }
                     MenuItem { text: Strings.t("Pantalla completa", "Pantalla completa"); onTriggered: player.toggleFullscreen() }
                 }

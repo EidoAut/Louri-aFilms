@@ -1,0 +1,48 @@
+FROM ubuntu:20.04@sha256:8feb4d8ca5354def3d8fce243717141ce31e2c428701f6682bd2fafe15388214
+
+ENV DEBIAN_FRONTEND=noninteractive PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONDONTWRITEBYTECODE=1 QTWEBENGINE_CHROMIUM_FLAGS=--disable-gpu
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
+# A dated archive prevents runner or apt updates from changing the toolchain.
+RUN printf 'deb http://snapshot.ubuntu.com/ubuntu/20261001T000000Z focal main universe\ndeb http://snapshot.ubuntu.com/ubuntu/20261001T000000Z focal-updates main universe\ndeb http://snapshot.ubuntu.com/ubuntu/20261001T000000Z focal-security main universe\n' > /etc/apt/sources.list \
+    && apt-get -o Acquire::Check-Valid-Until=false update \
+    && apt-get install -y --no-install-recommends build-essential ca-certificates curl \
+       xz-utils libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev \
+       libffi-dev liblzma-dev uuid-dev binutils file git xvfb xauth \
+       libglib2.0-0 libdbus-1-3 libfontconfig1 libfreetype6 libxfixes3 libcups2 \
+       libgtk-3-0 libegl1 libgl1 libopengl0 libnss3 libasound2 libpulse0 \
+       libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 \
+       libxcb-shape0 libxcb-xinerama0 libxcomposite1 libxdamage1 libxrandr2 \
+       libxtst6 libxshmfence1 libgbm1 libdrm2 libxkbfile1 \
+       desktop-file-utils openbox pulseaudio ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+RUN curl -fsSLo /tmp/python.tar.xz https://www.python.org/ftp/python/3.12.15/Python-3.12.15.tar.xz \
+    && echo 'c2c4321961fab0fb999d66e0cecf521c2ab3994c7992873ea99e306c1094fd5a  /tmp/python.tar.xz' | sha256sum -c - \
+    && mkdir /tmp/python && tar -xJf /tmp/python.tar.xz -C /tmp/python --strip-components=1 \
+    && cd /tmp/python && ./configure --enable-shared --with-ensurepip=install \
+    && make -j4 && make install && ldconfig \
+    && rm -rf /tmp/python /tmp/python.tar.xz
+COPY packaging/requirements-linux.lock /tmp/requirements-linux.lock
+RUN python3.12 -m pip install --require-hashes --only-binary=:all: -r /tmp/requirements-linux.lock \
+    && python3.12 -m pip check \
+    && dpkg-query -W > /opt/build-system-packages.txt
+RUN apt-get -o Acquire::Check-Valid-Until=false update \
+    && apt-get install -y --no-install-recommends libxcb-randr0 \
+    && dpkg-query -W > /opt/build-system-packages.txt \
+    && rm -rf /var/lib/apt/lists/*
+# Qt 6.8 dynamically loads OpenSSL 3, which Focal does not provide.
+# Build it on Focal too; never borrow libssl from a newer Ubuntu release.
+RUN curl -fsSLo /tmp/openssl.tar.gz https://github.com/openssl/openssl/releases/download/openssl-3.5.9/openssl-3.5.9.tar.gz \
+    && echo '603f5602e2eef00d77fbd429d34dcd5822bb301757a1bc9cdb24c670f1eb859a  /tmp/openssl.tar.gz' | sha256sum -c - \
+    && mkdir /tmp/openssl && tar -xzf /tmp/openssl.tar.gz -C /tmp/openssl --strip-components=1 \
+    && cd /tmp/openssl && ./Configure --prefix=/opt/openssl --libdir=lib shared no-tests \
+    && make -j4 && make install_sw \
+    && cp LICENSE.txt /opt/openssl/LICENSE.txt \
+    && echo /opt/openssl/lib > /etc/ld.so.conf.d/lourinha-openssl.conf && ldconfig \
+    && rm -rf /tmp/openssl /tmp/openssl.tar.gz
+RUN useradd --create-home builder
+WORKDIR /work
+RUN chown builder:builder /work
+COPY --chown=builder:builder . /work
+USER builder
+ENTRYPOINT ["bash", "scripts/build-linux-container.sh"]

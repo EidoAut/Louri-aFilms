@@ -38,7 +38,7 @@ ScrollView {
         ActionButton { text: Strings.t("Borrar historial de búsqueda y reproducción", "Borrar historial de busca e reprodución"); onClicked: cinema.openHistory("all") }
         RowLayout {
             Image { source: brandLogo; Layout.preferredWidth: 280; Layout.preferredHeight: 116; fillMode: Image.PreserveAspectFit }
-            Text { font.family: Theme.font; text: "Louriña Films · 0.5.0"; color: Theme.text; font.pixelSize: Theme.lead }
+            Text { font.family: Theme.font; text: "Louriña Films · 0.5.1"; color: Theme.text; font.pixelSize: Theme.lead }
         }
         Text { font.family: Theme.font; font.pixelSize: Theme.body; Layout.fillWidth: true; text: Strings.t("Reproducción integrada de vídeos públicos. Algunas fuentes pueden no estar disponibles.", "Reprodución integrada de vídeos públicos. Algunhas fontes poden non estar dispoñibles."); color: Theme.muted; wrapMode: Text.WordWrap }
         Text { text: "This product uses the TMDB API but is not endorsed or certified by TMDB."; color: Theme.muted; Layout.fillWidth: true; wrapMode: Text.WordWrap }

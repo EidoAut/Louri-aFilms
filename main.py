@@ -69,10 +69,16 @@ def main() -> int:
     QQuickStyle.setStyle("Basic")
     QtWebEngineQuick.initialize()
     app = QGuiApplication(sys.argv)
+    if "--smoke-test" in sys.argv:
+        from PySide6.QtNetwork import QSslSocket
+
+        if not QSslSocket.supportsSsl():
+            print("Packaged Qt TLS backend is unavailable", file=sys.stderr)
+            return 1
     app.setApplicationName("lourihna_films")
     app.setApplicationDisplayName("Louriña Films")
     app.setOrganizationName("LourihnaFilms")
-    app.setApplicationVersion("0.5.0")
+    app.setApplicationVersion("0.5.1")
     app.setWindowIcon(QIcon(str(ROOT / "assets" / "lourihna_films.ico")))
     startup = StartupCoordinator(prepare_database)
     splash_engine = QQmlApplicationEngine()

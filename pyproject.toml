@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "lourihna-films"
-version = "0.5.0"
+version = "0.5.1"
 description = "Public cinema discovery with Internet Archive, OK.ru and a local library"
 license = "MIT"
 authors = [{name = "Samuel Seijo Ribeiro"}]
