@@ -219,7 +219,7 @@ Para repetir a proba nun sistema concreto (cambia 20.04 por 22.04 ou 24.04):
 
 ```sh
 docker build --build-arg UBUNTU_VERSION=20.04 -f packaging/Dockerfile.linux-test -t lourinha-test .
-docker run --rm --shm-size=512m -v "$PWD/dist/linux-glibc231:/input:ro" lourinha-test
+docker run --rm --init --shm-size=512m --security-opt seccomp=packaging/chromium-seccomp.json -v "$PWD/dist/linux-glibc231:/input:ro" lourinha-test
 ```
 
 Estas probas instalan como usuario sen privilexios, lanzan Qt con Xvfb,

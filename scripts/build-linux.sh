@@ -7,7 +7,8 @@ source_dirty=$(test -z "$(git status --porcelain)" && echo false || echo true)
 source_epoch=$(git show -s --format=%ct HEAD)
 docker build --platform linux/amd64 -f packaging/Dockerfile.linux -t "$image" .
 mkdir -p dist/linux-glibc231
-container=$(docker create --platform linux/amd64 --shm-size=512m \
+container=$(docker create --platform linux/amd64 --init --shm-size=512m \
+    --security-opt seccomp=packaging/chromium-seccomp.json \
     -e SOURCE_COMMIT="$source_commit" \
     -e SOURCE_DIRTY="$source_dirty" \
     -e SOURCE_DATE_EPOCH="$source_epoch" "$image")

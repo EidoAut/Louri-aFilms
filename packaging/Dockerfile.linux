@@ -26,7 +26,8 @@ COPY packaging/requirements-linux.lock /tmp/requirements-linux.lock
 RUN python3.12 -m pip install --require-hashes --only-binary=:all: -r /tmp/requirements-linux.lock \
     && python3.12 -m pip check \
     && dpkg-query -W > /opt/build-system-packages.txt
-RUN apt-get -o Acquire::Check-Valid-Until=false update \
+RUN apt-get -o Acquire::Check-Valid-Until=false -o Acquire::Retries=3 \
+    -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update \
     && apt-get install -y --no-install-recommends libxcb-randr0 \
     && dpkg-query -W > /opt/build-system-packages.txt \
     && rm -rf /var/lib/apt/lists/*

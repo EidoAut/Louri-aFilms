@@ -161,6 +161,7 @@ def main() -> int:
                         native
                         and not native.property("failure")
                         and native.property("playbackPosition") > 0
+                        and native.property("frameHeight") > 0
                     )
                     controller.update(bufferedMedia={})
                     app.exit(0 if passed else 1)

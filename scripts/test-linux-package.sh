@@ -21,6 +21,16 @@ touch "$target/obsolete-file"
 "$source_dir/install.sh"
 test ! -e "$target/obsolete-file"
 xvfb-run -a python3 /test/verify_executable.py "$target/lourihna_films"
+# Exercise an audio/video file against a virtual PulseAudio output as well.
+export XDG_RUNTIME_DIR="$scratch/audio-runtime"
+mkdir -m 700 "$XDG_RUNTIME_DIR"
+pulseaudio --start --exit-idle-time=-1
+pactl load-module module-null-sink sink_name=lourinha_test >/dev/null
+ffmpeg -hide_banner -loglevel error -f lavfi -i testsrc=size=160x90:rate=4 \
+    -f lavfi -i sine=frequency=440:sample_rate=44100 -t 12 \
+    -c:v mpeg4 -pix_fmt yuv420p -threads 1 -c:a aac "$scratch/audiovisual.mp4"
+LOURIHNA_FILMS_DATA_DIR="$scratch/audiovisual-profile" timeout 60s xvfb-run -a \
+    "$target/lourihna_films" --smoke-test --smoke-media "$scratch/audiovisual.mp4"
 # Launch the real desktop entry in an isolated graphical session.
 export XDG_DATA_HOME="$HOME/.local/share"
 export LOURIHNA_FILMS_DATA_DIR="$HOME/desktop-profile"

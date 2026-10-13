@@ -80,7 +80,7 @@ jobs:
       - name: Install, launch, play video, update and uninstall without root
         run: |
           set -o pipefail
-          docker run --rm --shm-size=512m -v "$PWD/dist/linux-glibc231:/input:ro" linux-test 2>&1 | tee compatibility-${{ matrix.ubuntu }}.txt
+          docker run --rm --init --shm-size=512m --security-opt seccomp=packaging/chromium-seccomp.json -v "$PWD/dist/linux-glibc231:/input:ro" linux-test 2>&1 | tee compatibility-${{ matrix.ubuntu }}.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:

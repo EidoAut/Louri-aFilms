@@ -48,6 +48,15 @@ GLIBC 2.34. Replacing Python alone would therefore not fix Ubuntu 20.04.
 packaged video/startup/restart checks under Xvfb, packaging and SHA-256 generation.
 GitHub Actions tests that same artifact in separate 20.04, 22.04 and 24.04 runtime
 containers. Test users are unprivileged; Chromium sandbox remains enabled.
+Docker's default seccomp policy denies `unshare`; the checked-in Moby profile
+adds clone/setns/unshare for Chromium's unprivileged sandbox namespaces, as
+recommended by Playwright. All other restrictions remain. This profile applies
+only to build/test containers, never to the installed desktop or host policy.
+The base profile comes from moby/profiles commit
+`4b8214fc4971e06172938a1f1554ccff6647ee80` (Apache-2.0, notice included).
+Desktop systems must permit sandbox namespaces for the application; AppArmor
+or other local policy can require administrator configuration. Container tests
+do not certify every desktop's namespace policy.
 Linux UI tests collect native Qt stderr instead of a Python Qt message callback:
 Qt 6.8's asynchronous QML loading can deadlock that callback while a Python
 property update owns the GIL. Diagnostics are still checked for QML errors.
