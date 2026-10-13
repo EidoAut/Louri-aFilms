@@ -41,6 +41,10 @@ GLIBC 2.34. Replacing Python alone would therefore not fix Ubuntu 20.04.
 - Rename the private QML loader id `native` to `bufferedLoader`: Qt 6.8 parses
   the former as a reserved JavaScript keyword. Slots, signals, object names,
   artwork and layout remain unchanged.
+- Keep libstdc++, libgcc_s, GBM/DRM and GL driver libraries on the host. The
+  initial Focal libstdc++ copy prevented Jammy's Mesa/LLVM driver from resolving
+  GLIBCXX_3.4.29/3.4.30 and CXXABI_1.3.13. These are documented OS dependencies,
+  not omitted Python dependencies. Qt, FFmpeg, Python and OpenSSL remain bundled.
 
 ## Validation boundaries
 
@@ -61,7 +65,7 @@ Linux UI tests collect native Qt stderr instead of a Python Qt message callback:
 Qt 6.8's asynchronous QML loading can deadlock that callback while a Python
 property update owns the GIL. Diagnostics are still checked for QML errors.
 Tests include installation in a HOME with spaces, updates removing obsolete
-runtime files, desktop-file validation and actual gio desktop launch, and
+runtime files, desktop-file validation and actual gtk-launch desktop launch, and
 uninstallation retaining personal data. The runtime containers have no project
 Python dependencies; system Python is used only by the external test harness.
 

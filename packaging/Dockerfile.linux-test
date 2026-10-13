@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     desktop-file-utils dbus-x11 x11-utils openbox pulseaudio ffmpeg \
     && rm -rf /var/lib/apt/lists/* && useradd --create-home tester
 RUN apt-get update && apt-get install -y --no-install-recommends libxcb-randr0 \
+    libglib2.0-bin libgtk-3-bin libgl1-mesa-dri libwayland-server0 \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /test
 COPY scripts/verify_executable.py scripts/video_fixture.py scripts/test-linux-package.sh /test/

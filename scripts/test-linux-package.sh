@@ -36,7 +36,7 @@ export XDG_DATA_HOME="$HOME/.local/share"
 export LOURIHNA_FILMS_DATA_DIR="$HOME/desktop-profile"
 dbus-run-session -- xvfb-run -a bash -c '
     openbox >/dev/null 2>&1 &
-    gio launch "$1"
+    gtk-launch lourinha-films
     for attempt in $(seq 1 30); do
         if test -f "$LOURIHNA_FILMS_DATA_DIR/lourihna_films.db" && xwininfo -root -tree | grep -q "Louriña Films"; then
             printf "%s\n" "PASS: desktop entry started a visible application window"

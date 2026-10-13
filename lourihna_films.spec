@@ -20,6 +20,11 @@ a = Analysis(['main.py'], pathex=[], binaries=native_binaries,
 # unrelated ICU DLLs (for example Poppler's), with incompatible exports.
 # Let Windows resolve its own ICU DLL instead of shipping a PATH collision.
 a.binaries = [entry for entry in a.binaries if 'cudnn' not in entry[0].lower() and entry[0].lower() not in {'icuuc.dll', 'icuin.dll', 'icudt78.dll'}]
+if sys.platform == 'linux':
+    # Mesa/LLVM drivers must use the host C++ and graphics ABI. Bundling Focal's
+    # libstdc++ shadows newer symbols needed by Ubuntu 22.04/24.04 drivers.
+    host_libraries = ('libstdc++.so', 'libgcc_s.so', 'libgbm.so', 'libdrm', 'libglapi.so')
+    a.binaries = [entry for entry in a.binaries if not entry[0].split('/')[-1].startswith(host_libraries)]
 pyz = PYZ(a.pure)
 exe = EXE(pyz, a.scripts, [], exclude_binaries=True, name='lourihna_films',
     console=False, upx=False, contents_directory='_internal', icon='lourihna_films/assets/lourihna_films.ico')

@@ -102,7 +102,8 @@ sudo apt-get install libglib2.0-0 libdbus-1-3 libfontconfig1 libfreetype6 \
   libxfixes3 libcups2 libgtk-3-0 libegl1 libgl1 libopengl0 libnss3 libasound2 \
   libpulse0 libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 \
   libxcb-shape0 libxcb-randr0 libxcb-xinerama0 libxcomposite1 libxdamage1 libxrandr2 \
-  libxtst6 libxshmfence1 libgbm1 libdrm2 libxkbfile1
+  libxtst6 libxshmfence1 libgbm1 libdrm2 libxkbfile1 libwayland-server0 \
+  libgl1-mesa-dri libstdc++6 libgcc-s1
 ```
 
 En Ubuntu 24.04 os nomes correspondentes son `libglib2.0-0t64`, `libcups2t64`,
