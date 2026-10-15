@@ -4,22 +4,22 @@ Aplicación de escritorio para descubrir cinema, organizar unha colección local
 
 ![Pantalla principal de Louriña Films](docs/screenshots/home.png)
 
-**Versión 0.5.1 · candidata de compatibilidade Linux**
+**Versión 0.5.1-rc.1 · candidata de compatibilidade Linux**
 
 Esta revisión conserva a interface e as funcións da versión 0.5.0 e incorpora
 unha compilación Linux baseada en GLIBC 2.31.
 Os paquetes prepáranse sen contas, claves, bases de datos nin datos persoais.
-A publicación en GitHub é un paso separado: consulta [Releases](https://github.com/EidoAut/Louri-aFilms/releases)
-para ver as versións que xa están publicadas.
+Descarga a [candidata Linux 0.5.1-rc.1](https://github.com/EidoAut/Louri-aFilms/releases/tag/v0.5.1-rc.1).
+As demais versións están en [Releases](https://github.com/EidoAut/Louri-aFilms/releases).
 
 | Plataforma | Paquete |
 | --- | --- |
-| Windows x86_64 · portable | `lourihna-films-0.5.0-windows-x86_64-portable.zip` |
-| Linux x86_64 · portable | `LourinhaFilms-linux-x86_64-glibc231.tar.gz` |
-| Código fonte | `lourihna-films-0.5.0-source.zip` |
+| Windows x86_64 · estable 0.5.0 | `lourihna-films-0.5.0-windows-x86_64-portable.zip` |
+| Linux x86_64 · candidata 0.5.1-rc.1 | `LourinhaFilms-linux-x86_64-glibc231.tar.gz` |
+| Código fonte da candidata | Source code da etiqueta `v0.5.1-rc.1` en GitHub |
 | Verificación de integridade | `SHA256SUMS.txt` |
 
-[Notas da versión](docs/RELEASE-0.5.0.md) · [Requisitos e instalación](#descargas-e-requisitos)
+[Notas da candidata](docs/RELEASE-0.5.1-rc.1.md) · [Informe técnico](docs/LINUX-RELEASE-REPORT-0.5.1-rc.1.md) · [Requisitos e instalación](#descargas-e-requisitos)
 
 ## Funcións
 
@@ -56,7 +56,7 @@ con Inno Setup; non se debe anunciar como dispoñible ata que se xere e publique
 ### Linux
 
 O novo paquete ten como base **Ubuntu 20.04 x86_64 e GLIBC 2.31**. Ubuntu
-22.04 e 24.04 forman parte da matriz automática de probas. Consulta os resultados
+20.04, 22.04 e 24.04 superaron a matriz automática con Xvfb e audio virtual. Consulta os resultados
 da compilación e as notas da versión: a base de compilación non certifica todos
 os escritorios, controladores gráficos nin servizos de vídeo.
 
