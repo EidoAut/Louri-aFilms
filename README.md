@@ -5,7 +5,7 @@
 
 **Desktop film discovery and playback**
 
-A desktop multimedia application for discovering films, managing local collections and playing compatible public sources.
+<p align="justify">A desktop multimedia application for discovering films, managing local collections and playing compatible public sources.</p>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-5bbc85.svg)](LICENSE)
 
@@ -13,7 +13,7 @@ A desktop multimedia application for discovering films, managing local collectio
 
 ## Project documentation
 
-Aplicación de escritorio para descubrir cinema, organizar unha colección local e reproducir fontes públicas compatibles. Emprega Python, PySide6/QML, SQLite e Qt Multimedia/WebEngine. Non precisa unha conta propia da aplicación.
+<p align="justify">Aplicación de escritorio para descubrir cinema, organizar unha colección local e reproducir fontes públicas compatibles. Emprega Python, PySide6/QML, SQLite e Qt Multimedia/WebEngine. Non precisa unha conta propia da aplicación.</p>
 
 ![Pantalla principal de Louriña Films](docs/screenshots/home.png)
 
@@ -51,7 +51,7 @@ As demais versións están en [Releases](https://github.com/EidoAut/Louri-aFilms
 
 ## Descargas e requisitos
 
-Consulta as notas de cada versión para coñecer o sistema de compilación e as comprobacións realizadas.
+<p align="justify">Consulta as notas de cada versión para coñecer o sistema de compilación e as comprobacións realizadas.</p>
 
 ### Windows
 
@@ -106,9 +106,7 @@ O instalador antigo usaba `~/.local/opt/lourihna-films`; non se elimina esa
 instalación automaticamente. Se segue aparecendo unha entrada antiga no menú,
 retíraa só despois de comprobar a nova instalación.
 
-Precísase un escritorio X11 ou XWayland, controladores OpenGL/Mesa e un servizo
-de audio PulseAudio ou PipeWire compatible. As bibliotecas do sistema pódense
-instalar en Ubuntu 20.04/22.04 con:
+<p align="justify">Precísase un escritorio X11 ou XWayland, controladores OpenGL/Mesa e un servizo de audio PulseAudio ou PipeWire compatible. As bibliotecas do sistema pódense instalar en Ubuntu 20.04/22.04 con:</p>
 
 ```sh
 sudo apt-get install libglib2.0-0 libdbus-1-3 libfontconfig1 libfreetype6 \
@@ -166,11 +164,11 @@ Consulta a [autenticación oficial](https://developer.themoviedb.org/docs/authen
 
 > This product uses the TMDB API but is not endorsed or certified by TMDB.
 
-As imaxes e os metadatos de terceiros non se relicencian baixo MIT.
+<p align="justify">As imaxes e os metadatos de terceiros non se relicencian baixo MIT.</p>
 
 ## Executar desde as fontes
 
-Require Python 3.12 ou posterior compatible coas dependencias; as comprobacións de distribución usan Python 3.12.
+<p align="justify">Require Python 3.12 ou posterior compatible coas dependencias; as comprobacións de distribución usan Python 3.12.</p>
 
 ```sh
 python -m venv .venv
@@ -206,7 +204,7 @@ python scripts/package_release.py --source
 
 Windows: executa `ISCC packaging/windows.iss` con Inno Setup despois de PyInstaller. O instalador queda en `dist/packages/`. Comproba a aplicación con `python scripts/verify_executable.py dist/lourihna_films/lourihna_films.exe`.
 
-Linux: desde un clon Git, con Docker en modo Linux, executa:
+<p align="justify">Linux: desde un clon Git, con Docker en modo Linux, executa:</p>
 
 ```sh
 bash scripts/build-linux.sh
@@ -231,7 +229,7 @@ versións e hashes proceden dos índices asinados do snapshot. Os ficheiros exac
 descárganse do espello oficial cando están dispoñibles, verificando o SHA-256 do
 snapshot; se non están dispoñibles, úsase o propio arquivo histórico.
 
-Para repetir a proba nun sistema concreto (cambia 20.04 por 22.04 ou 24.04):
+<p align="justify">Para repetir a proba nun sistema concreto (cambia 20.04 por 22.04 ou 24.04):</p>
 
 ```sh
 docker build --build-arg UBUNTU_VERSION=20.04 -f packaging/Dockerfile.linux-test -t lourinha-test .
@@ -267,4 +265,4 @@ Código propio baixo [MIT](LICENSE), copyright © 2026 Samuel Seijo Ribeiro. Des
 
 O logotipo actual foi facilitado polo titular do proxecto e consérvase sen modificacións neste cambio. Qt/PySide, FFmpeg, Chromium/WebEngine, Inter e as demais dependencias manteñen as súas propias licenzas e avisos en [docs/licenses](docs/licenses/THIRD-PARTY.md). Os modelos de tradución descárganse por separado e non están incluídos na distribución.
 
-As bibliotecas LGPL distribúense como bibliotecas dinámicas substituíbles. As instrucións anteriores permiten reconstruír a aplicación; non se impide depurar modificacións desas bibliotecas. As fontes e os avisos dos compoñentes correspondentes están enlazados no documento de terceiros. MIT non concede dereitos sobre películas, metadatos, marcas nin contidos dos provedores.
+<p align="justify">As bibliotecas LGPL distribúense como bibliotecas dinámicas substituíbles. As instrucións anteriores permiten reconstruír a aplicación; non se impide depurar modificacións desas bibliotecas. As fontes e os avisos dos compoñentes correspondentes están enlazados no documento de terceiros. MIT non concede dereitos sobre películas, metadatos, marcas nin contidos dos provedores.</p>
