@@ -1,4 +1,17 @@
+<!-- EIDO repository presentation. Detailed project documentation is preserved below. -->
+<p align="center"><img src="docs/assets/eido-project-banner.svg" alt="Louriña Films — EIDO Automation" width="100%"></p>
+
 # Louriña Films
+
+**Desktop film discovery and playback**
+
+A desktop multimedia application for discovering films, managing local collections and playing compatible public sources.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-5bbc85.svg)](LICENSE)
+
+**Maintained by [EIDO Automation](https://github.com/EidoAut).** See the [MIT license](LICENSE). Check the documented prerequisites, constraints and validation status before deploying.
+
+## Project documentation
 
 Aplicación de escritorio para descubrir cinema, organizar unha colección local e reproducir fontes públicas compatibles. Emprega Python, PySide6/QML, SQLite e Qt Multimedia/WebEngine. Non precisa unha conta propia da aplicación.
 
