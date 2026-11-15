@@ -58,7 +58,7 @@ Consulta as notas de cada versión para coñecer o sistema de compilación e as 
 1. Descarga `lourihna-films-0.5.0-windows-x86_64-portable.zip` cando estea publicado.
 2. Extrae **todo** o arquivo nun cartafol; conserva `_internal` xunto ao executable.
 3. Abre `lourihna_films/lourihna_films.exe`. Non precisa instalación nin permisos de administrador.
-4. Abre **☰ → Axustes** para configurar TMDB se queres utilizar ese catálogo.
+4. Abre ** → Axustes** para configurar TMDB se queres utilizar ese catálogo.
 
 Compilación x86_64 con Python 3.12; validación local en Windows 11. Non hai unha
 compilación ARM nativa nin certificación de todas as versións de Windows. O
@@ -145,7 +145,7 @@ Os anexos automáticos **Source code (zip)** e **Source code (tar.gz)** son cód
 - **Audio HDMI:** conecta o televisor e abre **Audio** no reprodutor nativo.
   **Automática** segue a saída predeterminada do sistema; tamén podes escoller un
   dispositivo concreto. O reprodutor web usa a saída de Chromium/sistema.
-- **Historiais:** abre **☰ → Eliminar historiais…** ou os botóns de Busca/A miña lista.
+- **Historiais:** abre ** → Eliminar historiais…** ou os botóns de Busca/A miña lista.
   Podes borrar buscas, reproducións ou ambas. O borrado de reproducións elimina
   tamén o progreso e Continuar vendo; conserva favoritos, colección e axustes.
 - As previsualizacións son imaxes estáticas cando non hai un tráiler verificado.
